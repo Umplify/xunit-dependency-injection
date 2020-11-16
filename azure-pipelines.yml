@@ -4,7 +4,7 @@ variables:
   Minor: 0
   Patch: 0
 
-name: $(Major).$(Minor).$(Patch)-$(rev:r)
+name: $(Major).$(Minor).$(Patch).$(rev:r)
 trigger:
 - master
 
@@ -27,24 +27,7 @@ steps:
     projects: |
       **/Xunit.Microsoft.DependencyInjection.csproj
     arguments: '--configuration $(BuildConfiguration)'
-- script: echo Started running the tests
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'test'
-    projects: |
-      **/Xunit.Microsoft.DependencyInjection.csproj
-    arguments: '--configuration $(BuildConfiguration)'
-    testRunTitle: 'Running integration and unit tests'
-  continueOnError: true
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'test'
-    projects: |
-      **/Umplify.GrainFabric.IntegrationTests.csproj
-    arguments: '--configuration $(BuildConfiguration)'
-    testRunTitle: 'Running integration and unit tests'
-  continueOnError: true
-  enabled: false
+    
 - script: echo Started publishing
 - task: DotNetCoreCLI@2
   inputs:
