@@ -12,16 +12,14 @@ steps:
   displayName: 'Restoring'
   inputs:
     command: 'restore'
-    projects: |
-      **/Xunit.Microsoft.DependencyInjection.csproj
+    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
     feedsToUse: 'select'
 - script: echo Started building the source code
 - task: DotNetCoreCLI@2
   displayName: 'Building'
   inputs:
     command: 'build'
-    projects: |
-      **/Xunit.Microsoft.DependencyInjection.csproj
+    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
     arguments: '--configuration $(BuildConfiguration)'
     
 - script: echo Started publishing
@@ -30,8 +28,7 @@ steps:
   inputs:
     command: 'publish'
     publishWebProjects: false
-    projects: |
-      **/Xunit.Microsoft.DependencyInjection.csproj
+    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 - script: echo Started dropping
 - task: PublishBuildArtifacts@1
