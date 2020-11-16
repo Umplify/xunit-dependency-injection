@@ -54,10 +54,10 @@ steps:
     versioningScheme: byEnvVar 
     versionEnvVar:  'Build.BuildNumber'
 - task: NuGetCommand@2
-  displayName: 'Pushing'
+  displayName: 'Pushing to nuget.org'
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    nuGetFeedType: 'internal'
-    publishVstsFeed: 'fe86d930-6b10-4354-978c-a07a564ec41d'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'nuget.org connection'
     allowPackageConflicts: true
