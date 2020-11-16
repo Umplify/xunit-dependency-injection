@@ -39,14 +39,14 @@ steps:
     publishLocation: 'Container'
 
 - script: echo Started packing and pushing
-- task: DotNetCoreCLI@2
+
+- task: NuGetCommand@2
   displayName: 'Packing'
   inputs:
     command: 'pack'
     packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
-    includesymbols: false
-    versioningScheme: byEnvVar 
-    versionEnvVar:  'Build.BuildNumber'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'Build.BuildNumber'
 - task: NuGetCommand@2
   displayName: 'Pushing to nuget.org'
   inputs:
