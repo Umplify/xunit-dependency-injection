@@ -1,0 +1,30 @@
+variables:
+  Major: 1
+  Minor: 0
+  Patch: 0
+  BuildConfiguration: Release
+
+name: $(Major).$(Minor).$(Patch).$(rev:r)
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo Build Number $(name)
+- script: echo Started restoring the source code
+- task: DotNetCoreCLI@2
+  displayName: 'Restoring'
+  inputs:
+    command: 'restore'
+    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    feedsToUse: 'select'
+- script: echo Started building the source code
+- task: DotNetCoreCLI@2
+  displayName: 'Building'
+  inputs:
+    command: 'build'
+    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
+    
