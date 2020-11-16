@@ -1,0 +1,57 @@
+name: $(Major).$(Minor).$(Patch).$(rev:r)
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo Build Number $(name)
+- script: echo Started restoring the source code
+- task: DotNetCoreCLI@2
+  displayName: 'Restoring'
+  inputs:
+    command: 'restore'
+    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    feedsToUse: 'select'
+- script: echo Started building the source code
+- task: DotNetCoreCLI@2
+  displayName: 'Building'
+  inputs:
+    command: 'build'
+    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
+    
+- script: echo Started publishing
+- task: DotNetCoreCLI@2
+  displayName: 'Publishing'
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+- script: echo Started dropping
+- task: PublishBuildArtifacts@1
+  displayName: 'Dropping'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+- script: echo Started packing and pushing
+
+- task: NuGetCommand@2
+  displayName: 'Packing'
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'Build.BuildNumber'
+- task: NuGetCommand@2
+  displayName: 'Pushing to nuget.org'
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'nuget.org connection'
+    allowPackageConflicts: true
