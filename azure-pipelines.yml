@@ -2,7 +2,7 @@ variables:
   Major: 1
   Minor: 0
   Patch: 0
-
+  
 name: $(Major).$(Minor).$(Patch).$(rev:r)
 trigger:
 - master
@@ -49,7 +49,7 @@ steps:
     packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
     includesymbols: false
     versioningScheme: byEnvVar 
-    versionEnvVar: $(name)
+    versionEnvVar:  'Build.BuildNumber'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'push'
