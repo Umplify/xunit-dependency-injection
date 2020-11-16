@@ -47,11 +47,10 @@ steps:
     includesymbols: false
     versioningScheme: byEnvVar 
     versionEnvVar:  'Build.BuildNumber'
-- task: DotNetCoreCLI@2
-  displayName: 'Pushing nugets'
+- task: NuGetCommand@2
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: 'fe86d930-6b10-4354-978c-a07a564ec41d'
-    arguments: '--skip-duplicate'
+    allowPackageConflicts: true
