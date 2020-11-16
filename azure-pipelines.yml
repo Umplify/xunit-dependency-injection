@@ -9,6 +9,7 @@ steps:
 - script: echo Build Number $(name)
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2
+  displayName: 'Restoring'
   inputs:
     command: 'restore'
     projects: |
@@ -16,6 +17,7 @@ steps:
     feedsToUse: 'select'
 - script: echo Started building the source code
 - task: DotNetCoreCLI@2
+  displayName: 'Building'
   inputs:
     command: 'build'
     projects: |
@@ -24,6 +26,7 @@ steps:
     
 - script: echo Started publishing
 - task: DotNetCoreCLI@2
+  displayName: 'Publishing'
   inputs:
     command: 'publish'
     publishWebProjects: false
@@ -32,6 +35,7 @@ steps:
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 - script: echo Started dropping
 - task: PublishBuildArtifacts@1
+  displayName: 'Dropping'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
@@ -39,6 +43,7 @@ steps:
 
 - script: echo Started packing and pushing
 - task: DotNetCoreCLI@2
+  displayName: 'Packing'
   inputs:
     command: 'pack'
     packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
@@ -46,6 +51,7 @@ steps:
     versioningScheme: byEnvVar 
     versionEnvVar:  'Build.BuildNumber'
 - task: DotNetCoreCLI@2
+  displayName: 'Pushing nugets'
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
