@@ -48,6 +48,7 @@ steps:
     versioningScheme: byEnvVar 
     versionEnvVar:  'Build.BuildNumber'
 - task: NuGetCommand@2
+  displayName: 'Pushing'
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
