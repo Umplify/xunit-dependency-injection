@@ -12,7 +12,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Build Number $(Build.BuildNumber)
+- script: echo Build Number $(name)
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2
   inputs:
@@ -66,8 +66,8 @@ steps:
     command: 'pack'
     packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
     includesymbols: false
-    versioningScheme: byEnvVar
-    versionEnvVar: 'Build.BuildNumber'
+    versioningScheme: byBuildNumber 
+    versionEnvVar: $(name)
 - task: DotNetCoreCLI@2
   inputs:
     command: 'push'
