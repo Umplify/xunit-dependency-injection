@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package >
+  <metadata>
+    <id>Xunit.Microsoft.DependencyInjection</id>
+    <title>Microsoft Dependency Injection for Xunit</title>
+    <version>1.0</version>
+    <authors>Arash Sabet</authors>
+    <owners>Umplify Technologies Inc.</owners>
+    <licenseUrl>https://github.com/Umplify/xunit-dependency-injection/blob/main/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Umplify/xunit-dependency-injection</projectUrl>
+    <iconUrl>https://avatars2.githubusercontent.com/u/4282484?s=400&u=48c9962bd3bc8d13c16bf8174b8981aa56795e11&v=4</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>This package contains the necessary classes and features to leverage Xunit's fixture class for Microsoft dependency inection framework.</description>
+    <copyright>2020 - All rights reserved, Umplify Technologies Inc</copyright>
+    <tags>xunit dependency-injection microsoft-dependency-injection</tags>
+  </metadata>
+</package>

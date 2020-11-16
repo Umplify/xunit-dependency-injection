@@ -3,12 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
-using Umplify.Test.Tools.Logging;
 using Xunit.Abstractions;
+using Xunit.Microsoft.DependencyInjection.Logging;
 
-namespace Umplify.Test.Tools.Abstracts
+namespace Xunit.Microsoft.DependencyInjection.Abstracts
 {
-	public abstract class TestBedFixture : IDisposable
+    public abstract class TestBedFixture : IDisposable
 	{
 		private readonly IServiceCollection _services;
 		private IServiceProvider _serviceProvider;

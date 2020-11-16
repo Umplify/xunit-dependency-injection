@@ -1,10 +1,9 @@
 ﻿using System;
-using Xunit;
 using Xunit.Abstractions;
 
-namespace Umplify.Test.Tools.Abstracts
+namespace Xunit.Microsoft.DependencyInjection.Abstracts
 {
-	public abstract class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>
+    public abstract class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>
 		where TFixture: class
 	{	
 		protected readonly ITestOutputHelper _testOutputHelper;

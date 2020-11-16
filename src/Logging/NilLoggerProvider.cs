@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace Umplify.Test.Tools.Logging
+namespace Xunit.Microsoft.DependencyInjection.Logging
 {
     public sealed class NilLoggerProvider : ILoggerProvider
     {

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Umplify.Test.Tools.Attributes;
 using Xunit.Abstractions;
+using Xunit.Microsoft.DependencyInjection.Attributes;
 using Xunit.Sdk;
 
-namespace Umplify.Test.Tools.TestsOrder
+namespace Xunit.Microsoft.DependencyInjection.TestsOrder
 {
-	public class TestPriorityOrderer : ITestCaseOrderer
+    public class TestPriorityOrderer : ITestCaseOrderer
 	{
 		public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
 			where TTestCase : ITestCase

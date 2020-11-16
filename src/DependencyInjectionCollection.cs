@@ -1,10 +1,8 @@
-﻿using System;
-using Umplify.Test.Tools.Abstracts;
-using Xunit;
+﻿using Xunit.Microsoft.DependencyInjection.Abstracts;
 
-namespace Umplify.Test.Tools
+namespace Xunit.Microsoft.DependencyInjection
 {
-	[CollectionDefinition("Dependency Injection")]
+    [CollectionDefinition("Dependency Injection")]
 	public class DependencyInjectionCollection : ICollectionFixture<TestBedFixture>
 	{
 		public DependencyInjectionCollection()

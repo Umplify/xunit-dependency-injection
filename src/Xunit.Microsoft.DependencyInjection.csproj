@@ -18,7 +18,4 @@
     <Folder Include="TestsOrder\" />
     <Folder Include="Attributes\" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Umplify.GrainFabric.Grain\Umplify.GrainFabric.Grain.csproj" />
-  </ItemGroup>
 </Project>

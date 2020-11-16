@@ -2,7 +2,7 @@
 using System;
 using Xunit.Abstractions;
 
-namespace Umplify.Test.Tools.Logging
+namespace Xunit.Microsoft.DependencyInjection.Logging
 {
     public class OutputLogger : ILogger
     {

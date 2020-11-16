@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Umplify.Test.Tools.Attributes
+namespace Xunit.Microsoft.DependencyInjection.Attributes
 {
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 	public class TestOrderAttribute : Attribute
