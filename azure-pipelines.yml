@@ -48,7 +48,7 @@ steps:
     command: 'pack'
     packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
     includesymbols: false
-    versioningScheme: byBuildNumber 
+    versioningScheme: byEnvVar 
     versionEnvVar: $(name)
 - task: DotNetCoreCLI@2
   inputs:
