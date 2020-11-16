@@ -1,3 +1,9 @@
+variables:
+  Major: 1
+  Minor: 0
+  Patch: 0
+  BuildConfiguration: Release
+
 name: $(Major).$(Minor).$(Patch).$(rev:r)
 trigger:
 - master
