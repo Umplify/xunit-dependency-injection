@@ -1,0 +1,77 @@
+variables:
+  BuildConfiguration: Release
+  Major: 1
+  Minor: 0
+  Patch: 0
+
+name: $(Major).$(Minor).$(Patch)-$(rev:r)
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo Build Number $(Build.BuildNumber)
+- script: echo Started restoring the source code
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: |
+      **/Xunit.Microsoft.DependencyInjection.csproj
+    feedsToUse: 'select'
+- script: echo Started building the source code
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: |
+      **/Xunit.Microsoft.DependencyInjection.csproj
+    arguments: '--configuration $(BuildConfiguration)'
+- script: echo Started running the tests
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: |
+      **/Xunit.Microsoft.DependencyInjection.csproj
+    arguments: '--configuration $(BuildConfiguration)'
+    testRunTitle: 'Running integration and unit tests'
+  continueOnError: true
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: |
+      **/Umplify.GrainFabric.IntegrationTests.csproj
+    arguments: '--configuration $(BuildConfiguration)'
+    testRunTitle: 'Running integration and unit tests'
+  continueOnError: true
+  enabled: false
+- script: echo Started publishing
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: |
+      **/Xunit.Microsoft.DependencyInjection.csproj
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+- script: echo Started dropping
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+- script: echo Started packing and pushing
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    includesymbols: false
+    versioningScheme: byEnvVar
+    versionEnvVar: 'Build.BuildNumber'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: 'fe86d930-6b10-4354-978c-a07a564ec41d'
+    arguments: '--skip-duplicate'
