@@ -1,6 +1,13 @@
 name: $(Major).$(Minor).$(Patch).$(rev:r)
 trigger:
-- master
+  batch: true
+  branches:
+   include:
+     - master
+     - releases/*
+  paths:
+    exclude:
+      - examples/*
 
 pool:
   vmImage: 'ubuntu-latest'
