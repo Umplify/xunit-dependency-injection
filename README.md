@@ -1,5 +1,7 @@
 [![Build Status](https://dev.azure.com/umplify/Grain/_apis/build/status/Umplify.xunit-dependency-injection?branchName=main)](https://dev.azure.com/umplify/Grain/_build/latest?definitionId=17&branchName=main)
 
+![Nuget](https://img.shields.io/nuget/v/Xunit.Microsoft.DependencyInjection)
+
 # Xunit Dependency Injection
 Xunit does not come with any built-in dependency injection features, therefore developers have to come up with their own solution to recruit their favourite dependency injection frameworks in their tests.
 
