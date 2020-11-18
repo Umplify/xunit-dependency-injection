@@ -3,7 +3,6 @@ using Xunit.Microsoft.DependencyInjection.Attributes;
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests
 {
     [TestCaseOrderer("Xunit.Microsoft.DependencyInjection.TestsOrder.TestPriorityOrderer", "Xunit.Microsoft.DependencyInjection.TestsOrder")]
-    [Collection("Dependency Injection")]
     public class UnitTests
     {
         [Fact, TestOrder(1)]

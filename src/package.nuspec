@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Xunit.Microsoft.DependencyInjection</id>
-    <title>Microsoft Dependency Injection for Xunit</title>
+    <title>Microsoft Dependency Injection utility for Xunit</title>
     <version>1.0</version>
     <authors>Arash Sabet</authors>
     <owners>Umplify Technologies Inc.</owners>
