@@ -49,7 +49,7 @@ The library has a bonus feature that simplifies running tests in order. The test
 Decorate your Xunit test class with the following attribute and associate ```TestOrder(...)``` with ```Fact```and ```Theory```:
 
 ```csharp
-    [TestCaseOrderer("Xunit.Microsoft.DependencyInjection.TestsOrder.TestPriorityOrderer", "Xunit.Microsoft.DependencyInjection.TestsOrder")]
+[TestCaseOrderer("Xunit.Microsoft.DependencyInjection.TestsOrder.TestPriorityOrderer", "Xunit.Microsoft.DependencyInjection")]
 ```
 
 ## Examples
