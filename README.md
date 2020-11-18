@@ -55,5 +55,18 @@ Decorate your Xunit test class with the following attribute and associate ```Tes
 ## Examples
 Please [follow this link](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests) to view a couple of examples on utilizing this library.
 
+### One more thing
+Do not forget to include the following nuget packages in your Xunit project:
+
+```xml
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.10" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
+```
+
 ## A note on .net 5.0
 The .net 5.0 version of this library will be available on early 2021 and the reason for that is Microsoft's support on Azure Functions. Should there is an absolute need on supporting .net 5.0 in this library, please create a PR.
