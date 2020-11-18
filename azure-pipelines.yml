@@ -8,6 +8,7 @@ trigger:
   paths:
     exclude:
       - examples/*
+      - README.md
 
 pool:
   vmImage: 'ubuntu-latest'
