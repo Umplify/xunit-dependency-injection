@@ -29,6 +29,13 @@ steps:
     command: 'build'
     projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
     arguments: '--configuration $(BuildConfiguration)'
+- task: DotNetCoreCLI@2
+  displayName: 'Running tests in example folder'
+  inputs:
+    command: 'test'
+    projects: '**/examples/Xunit.Microsoft.DependencyInjection.ExampleTests'
+    arguments: '--configuration $(BuildConfiguration)'
+    testRunTitle: 'Running sample tests'
     
 - script: echo Started publishing
 - task: DotNetCoreCLI@2
