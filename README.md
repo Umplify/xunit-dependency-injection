@@ -34,6 +34,9 @@ public T GetScopedService<T>(ITestOutputHelper testOutputHelper);
 public T GetService<T>(ITestOutputHelper testOutputHelper);
 ```
 
+### Adding custom logging provider
+Test developers can add their own desired logger provider by overriding ```AddLoggingProvider(...)``` virtual method defined in ```TestBedFixture``` class.
+
 ### Preparing Xunit test classes
 Your Xunit test class must be derived from ```Xunit.Microsoft.DependencyInjection.Abstracts.TestBed<T>``` class where ```T``` should be your fixture class derived from ```TestBedFixture```.
 

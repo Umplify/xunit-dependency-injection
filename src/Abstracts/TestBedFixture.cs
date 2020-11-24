@@ -27,7 +27,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 				return _serviceProvider;
 			}
 
-			_services.AddLogging(loggingBuilder => loggingBuilder.AddProvider(new OutputLoggerProvider(testOutputHelper)));
+			_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
 			return _serviceProvider = _services.BuildServiceProvider();
 		}
 
@@ -41,11 +41,11 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		public T GetService<T>(ITestOutputHelper testOutputHelper)
 			=> GetServiceProvider(testOutputHelper).GetService<T>();
 
-		public void AddOutputHelperToLoggerProvider(ITestOutputHelper testOutputHelper)
-			=> _services.AddScoped<ILoggerProvider>(_ => new OutputLoggerProvider(testOutputHelper));
-
 		protected abstract string GetConfigurationFile();
 		protected abstract void AddServices(IServiceCollection services, IConfiguration configuration);
+
+		protected virtual ILoggingBuilder AddLoggingProvider(ILoggingBuilder loggingBuilder, ILoggerProvider loggerProvider)
+			=> loggingBuilder.AddProvider(loggerProvider);
 
 		private IConfigurationRoot GetConfigurationRoot()
 		{
