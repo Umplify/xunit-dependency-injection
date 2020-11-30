@@ -17,8 +17,11 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		protected TestBedFixture()
 		{
 			_services = new ServiceCollection();
-			AddServices(_services, GetConfigurationRoot());
+			Configuration = GetConfigurationRoot();
+			AddServices(_services, Configuration);
 		}
+
+		public IConfigurationRoot Configuration { get; private set; }
 
 		public IServiceProvider GetServiceProvider(ITestOutputHelper testOutputHelper)
 		{
