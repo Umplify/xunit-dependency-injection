@@ -1,4 +1,4 @@
-name: $(Major).$(Minor).$(Patch).$(rev:r)
+name: $(Major).$(Minor).$(rev:r)
 trigger:
   batch: true
   branches:
