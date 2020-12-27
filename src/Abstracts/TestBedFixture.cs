@@ -3,12 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Microsoft.DependencyInjection.Logging;
 
 namespace Xunit.Microsoft.DependencyInjection.Abstracts
 {
-    public abstract class TestBedFixture : IDisposable
+    public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	{
 		private readonly IServiceCollection _services;
 		private IServiceProvider _serviceProvider;
@@ -95,5 +96,13 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 			Dispose(disposing: true);
 			GC.SuppressFinalize(this);
 		}
+
+        public async ValueTask DisposeAsync()
+        {
+			await DisposeAsyncCore();
+			GC.SuppressFinalize(this);
+        }
+
+		protected abstract ValueTask DisposeAsyncCore();
 	}
 }
