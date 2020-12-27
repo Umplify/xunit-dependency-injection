@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Microsoft.DependencyInjection.Abstracts
 {
-    public abstract class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>
+    public abstract class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>, IAsyncDisposable
 		where TFixture: class
 	{	
 		protected readonly ITestOutputHelper _testOutputHelper;
@@ -44,5 +45,13 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		}
 
 		protected abstract void Clear();
+
+		public async ValueTask DisposeAsync()
+		{
+			await DisposeAsyncCore();
+			GC.SuppressFinalize(this);
+		}
+
+		protected abstract ValueTask DisposeAsyncCore();
 	}
 }
