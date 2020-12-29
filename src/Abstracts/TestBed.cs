@@ -10,6 +10,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		protected readonly ITestOutputHelper _testOutputHelper;
 		protected readonly TFixture _fixture;
 		private bool _disposedValue;
+		private bool _disposedAsync;
 
 		public TestBed(ITestOutputHelper testOutputHelper, TFixture fixture)
 			=> (_testOutputHelper, _fixture) = (testOutputHelper, fixture);
@@ -48,8 +49,12 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 
 		public async ValueTask DisposeAsync()
 		{
-			await DisposeAsyncCore();
-			GC.SuppressFinalize(this);
+			if (!_disposedAsync)
+			{
+				await DisposeAsyncCore();
+				GC.SuppressFinalize(this);
+				_disposedAsync = true;
+			}
 		}
 
 		protected abstract ValueTask DisposeAsyncCore();

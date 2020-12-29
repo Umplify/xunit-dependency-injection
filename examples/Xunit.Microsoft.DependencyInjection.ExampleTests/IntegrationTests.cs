@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Microsoft.DependencyInjection.Abstracts;
 using Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures;
@@ -40,5 +41,8 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests
         protected override void Clear()
         {
         }
+
+        protected override ValueTask DisposeAsyncCore()
+            => new ValueTask();
     }
 }
