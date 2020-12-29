@@ -14,6 +14,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		private readonly IServiceCollection _services;
 		private IServiceProvider _serviceProvider;
 		private bool _disposedValue;
+		private bool _disposedAsync;
 
 		protected TestBedFixture()
 		{
@@ -99,8 +100,12 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 
         public async ValueTask DisposeAsync()
         {
-			await DisposeAsyncCore();
-			GC.SuppressFinalize(this);
+			if (!_disposedAsync)
+			{
+				await DisposeAsyncCore();
+				GC.SuppressFinalize(this);
+				_disposedAsync = true;
+			}
         }
 
 		protected abstract ValueTask DisposeAsyncCore();
