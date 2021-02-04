@@ -1,4 +1,5 @@
 name: $(Major).$(Minor).$(rev:r)
+pr: none
 trigger:
   batch: true
   branches:
