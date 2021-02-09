@@ -76,6 +76,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 				{
 					// TODO: dispose managed state (managed objects)
 					((ServiceProvider)_serviceProvider)?.Dispose();
+					_services.Clear();
 				}
 
 				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
