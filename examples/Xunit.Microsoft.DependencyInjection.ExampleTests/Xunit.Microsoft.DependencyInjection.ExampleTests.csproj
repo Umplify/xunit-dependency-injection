@@ -33,4 +33,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Xunit.Microsoft.DependencyInjection.csproj" />
+  </ItemGroup>
 </Project>
