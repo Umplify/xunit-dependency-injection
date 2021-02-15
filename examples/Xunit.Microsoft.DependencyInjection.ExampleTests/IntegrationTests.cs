@@ -8,7 +8,6 @@ using Options = Xunit.Microsoft.DependencyInjection.ExampleTests.Services.Option
 
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests
 {
-    [CollectionDefinition("Dependency Injection")]
     public class IntegrationTests : TestBed<TestFixture>
     {
         public IntegrationTests(ITestOutputHelper testOutputHelper, TestFixture fixture)
