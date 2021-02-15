@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Microsoft.DependencyInjection.Abstracts
 {
-    public abstract class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>, IAsyncDisposable
+    public abstract class TestBed<TFixture> : IDisposable, ICollectionFixture<TFixture>, IAsyncDisposable
 		where TFixture: class
 	{	
 		protected readonly ITestOutputHelper _testOutputHelper;
