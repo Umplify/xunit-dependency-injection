@@ -71,5 +71,7 @@ Do not forget to include the following nuget packages in your Xunit project:
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
 ```
 
-## A note on .net 5.0
+## A note on .NET 5.0
 The .net 5.0 version of this library will be available on early 2021 and the reason for that is Microsoft's support on Azure Functions. Should there is an absolute need on supporting .net 5.0 in this library, please create a PR.
+
+An update on Mar 14th, 2021: Due to the gaps in supporting Azure Functions described on [this post](related to the gaps in binding and durable tasks), we are delaying upgrading this library to .NET 5.0 until those gaps are closed by Microsoft.
