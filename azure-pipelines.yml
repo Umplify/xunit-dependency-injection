@@ -2,9 +2,9 @@ name: $(Major).$(Minor).$(rev:r)
 pr: none
 trigger:
   batch: true
-  branches:
+  tags:
    include:
-     - master
+     - refs/tags/*
   paths:
     exclude:
       - examples/*
