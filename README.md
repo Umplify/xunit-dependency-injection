@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/umplify/Grain/_apis/build/status/Umplify.xunit-dependency-injection?branchName=main)](https://dev.azure.com/umplify/Grain/_build/latest?definitionId=17&branchName=main)
+[![Build Status](https://dev.azure.com/umplify/Grain/_apis/build/status/Xunit/xunit-dependency-injection?branchName=refs%2Ftags%2F1.0.66)](https://dev.azure.com/umplify/Grain/_build/latest?definitionId=17&branchName=refs%2Ftags%2F1.0.66)
 ![Nuget](https://img.shields.io/nuget/v/Xunit.Microsoft.DependencyInjection)
 
 # Xunit Dependency Injection
