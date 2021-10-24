@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/umplify/Grain/_apis/build/status/Xunit/xunit-dependency-injection?branchName=refs%2Ftags%2F1.0.66)](https://dev.azure.com/umplify/Grain/_build/latest?definitionId=17&branchName=refs%2Ftags%2F1.0.66)
+[![Build Status](https://dev.azure.com/umplify/Grain/_apis/build/status/Xunit/xunit-dependency-injection?branchName=refs%2Ftags%2F6.0.0)](https://dev.azure.com/umplify/Grain/_build/latest?definitionId=17&branchName=refs%2Ftags%2F6.0.0)
 ![Nuget](https://img.shields.io/nuget/v/Xunit.Microsoft.DependencyInjection)
 
 # Xunit Dependency Injection
@@ -59,14 +59,12 @@ Decorate your Xunit test class with the following attribute and associate ```Tes
 Please [follow this link](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests) to view a couple of examples on utilizing this library.
 
 ### One more thing
-Do not forget to include the following nuget packages in your Xunit project:
+Do not forget to include the following nuget packages to your Xunit project:
 
-```xml
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.10" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.10" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
-```
+* Microsoft.Extensions.DependencyInjection
+* Microsoft.Extensions.Configuration
+* Microsoft.Extensions.Options
+* Microsoft.Extensions.Configuration.Binder
+* Microsoft.Extensions.Configuration.FileExtensions
+* Microsoft.Extensions.Configuration.Json
+* Microsoft.Extensions.Logging
