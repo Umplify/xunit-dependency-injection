@@ -13,6 +13,12 @@ pool:
 
 steps:
 - script: echo Build Number $(name)
+- task: UseDotNet@2
+  displayName: 'Use .NET 6.0 sdk'
+  inputs:
+    packageType: sdk
+    version: 6.0.100-rc.2.21505.57
+    installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2
   displayName: 'Restoring'

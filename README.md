@@ -70,6 +70,3 @@ Do not forget to include the following nuget packages in your Xunit project:
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.10" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
 ```
-
-## A note on .NET 5.0
-We are doing away with .NET 5.0 and instead we will be supporting .NET 6.0 once its first release version becomes available to the public.
