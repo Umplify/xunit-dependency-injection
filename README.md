@@ -56,7 +56,9 @@ Decorate your Xunit test class with the following attribute and associate ```Tes
 ```
 
 ## Examples
-Please [follow this link](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests) to view a couple of examples on utilizing this library.
+
+* Please [follow this link](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests) to view a couple of examples on utilizing this library.
+* [Digital Silo](https://digitalsilo.io/)'s unit tests and integration tests are using this library.
 
 ### One more thing
 Do not forget to include the following nuget packages to your Xunit project:
