@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 using Xunit.Microsoft.DependencyInjection.Logging;
 
@@ -26,6 +26,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		}
 
 		public IConfigurationRoot Configuration { get; private set; }
+		public IConfigurationBuilder ConfigurationBuilder{ get; private set; }
 
 		public IServiceProvider GetServiceProvider(ITestOutputHelper testOutputHelper)
 		{
@@ -48,6 +49,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		public T GetService<T>(ITestOutputHelper testOutputHelper)
 			=> GetServiceProvider(testOutputHelper).GetService<T>();
 
+		[Obsolete("GetConfigurationFile() method will be deprecated in the next release. Please start using GetConfigurationFiles() instead.")]
 		protected abstract string GetConfigurationFile();
 		protected abstract void AddServices(IServiceCollection services, IConfiguration configuration);
 
@@ -70,12 +72,12 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 
 		private IConfigurationRoot GetConfigurationRoot(IEnumerable<string> configurationFiles)
 		{
-			var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
+			ConfigurationBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
 			foreach(var configurationFile in configurationFiles)
             {
-				builder.AddJsonFile(configurationFile);
+                ConfigurationBuilder.AddJsonFile(configurationFile);
             }
-			return builder.Build();
+			return ConfigurationBuilder.Build();
 		}
 
 		protected virtual void Dispose(bool disposing)
