@@ -21,6 +21,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		protected TestBedFixture()
 		{
 			_services = new ServiceCollection();
+            ConfigurationBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
 			Configuration = GetConfigurationRoot();
 			AddServices(_services, Configuration);
 		}
@@ -71,8 +72,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts
 		}
 
 		private IConfigurationRoot GetConfigurationRoot(IEnumerable<string> configurationFiles)
-		{
-			ConfigurationBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
+		{	
 			foreach(var configurationFile in configurationFiles)
             {
                 ConfigurationBuilder.AddJsonFile(configurationFile);
