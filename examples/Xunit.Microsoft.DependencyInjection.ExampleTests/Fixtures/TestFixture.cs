@@ -14,7 +14,7 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures
                 .Configure<Options>(config => configuration.GetSection("Options").Bind(config));
 
         protected override ValueTask DisposeAsyncCore()
-            => new ValueTask();
+            => new();
 
         protected override string GetConfigurationFile()
             => "appsettings.json";
