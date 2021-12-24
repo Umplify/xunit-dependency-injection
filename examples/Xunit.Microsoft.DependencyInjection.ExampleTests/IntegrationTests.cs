@@ -1,9 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using System.Threading.Tasks;
-using Xunit.Abstractions;
-using Xunit.Microsoft.DependencyInjection.Abstracts;
-using Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures;
-using Xunit.Microsoft.DependencyInjection.ExampleTests.Services;
 using Options = Xunit.Microsoft.DependencyInjection.ExampleTests.Services.Options;
 
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests
@@ -21,8 +16,8 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests
         {
             var calculator = _fixture.GetService<ICalculator>(_testOutputHelper);
             var option = _fixture.GetService<IOptions<Options>>(_testOutputHelper);
-            var calculated = calculator.Add(x, y);
-            var expected = option.Value.Rate * (x + y);
+            var calculated = calculator?.Add(x, y);
+            var expected = option?.Value.Rate * (x + y);
             Assert.True(expected == calculated);
         }
 
@@ -32,8 +27,8 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests
         {
             var calculator = _fixture.GetScopedService<ICalculator>(_testOutputHelper);
             var option = _fixture.GetScopedService<IOptions<Options>>(_testOutputHelper);
-            var calculated = calculator.Add(x, y);
-            var expected = option.Value.Rate * (x + y);
+            var calculated = calculator?.Add(x, y);
+            var expected = option?.Value.Rate * (x + y);
             Assert.True(expected == calculated);
         }
 
@@ -42,6 +37,6 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests
         }
 
         protected override ValueTask DisposeAsyncCore()
-            => new ValueTask();
+            => new();
     }
 }

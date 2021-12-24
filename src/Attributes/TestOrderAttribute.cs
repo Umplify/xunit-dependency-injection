@@ -1,13 +1,10 @@
-﻿using System;
+﻿namespace Xunit.Microsoft.DependencyInjection.Attributes;
 
-namespace Xunit.Microsoft.DependencyInjection.Attributes
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+public class TestOrderAttribute : Attribute
 {
-	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-	public class TestOrderAttribute : Attribute
-	{
-		public TestOrderAttribute(int priority)
-			=> Priority = priority;
+	public TestOrderAttribute(int priority)
+		=> Priority = priority;
 
-		public int Priority { get; }
-	}
+	public int Priority { get; }
 }
