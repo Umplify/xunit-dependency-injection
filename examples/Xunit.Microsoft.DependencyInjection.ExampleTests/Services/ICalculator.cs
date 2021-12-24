@@ -1,7 +1,6 @@
-﻿namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Services
+﻿namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Services;
+
+public interface ICalculator
 {
-    public interface ICalculator
-    {
-        int Add(int x, int y);
-    }
+    int Add(int x, int y);
 }
