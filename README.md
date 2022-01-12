@@ -2,7 +2,7 @@
 ![Nuget](https://img.shields.io/nuget/v/Xunit.Microsoft.DependencyInjection)
 ![Nuget](https://img.shields.io/nuget/dt/Xunit.Microsoft.DependencyInjection)
 
-# Xunit Dependency Injection
+# Xunit Dependency Injection framework
 Xunit does not come with any built-in dependency injection features, therefore developers have to come up with their own solution to recruit their favourite dependency injection frameworks in their tests.
 
 This library brings in Microsoft's dependency injection container to Xunit by leveraging fixtures.
