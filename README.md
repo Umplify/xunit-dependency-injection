@@ -50,7 +50,7 @@ Also, the test class should be decorated by the following attribute:
 ## Running tests in order
 The library has a bonus feature that simplifies running tests in order. The test class does not have to be derived from ```TestBed<T>``` class though and it can apply to all Xunit classes.
 
-Decorate your Xunit test class with the following attribute and associate ```TestOrder(...)``` with ```Fact```and ```Theory```:
+Decorate your Xunit test class with the following attribute and associate ```TestOrder(...)``` with ```Fact``` and ```Theory```:
 
 ```csharp
 [TestCaseOrderer("Xunit.Microsoft.DependencyInjection.TestsOrder.TestPriorityOrderer", "Xunit.Microsoft.DependencyInjection")]
