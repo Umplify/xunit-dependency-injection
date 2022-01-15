@@ -33,4 +33,11 @@ steps:
     command: 'build'
     projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
     arguments: '--configuration $(BuildConfiguration)'
+- task: NuGetCommand@2
+  displayName: 'Packing'
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'Build.BuildNumber'
     
