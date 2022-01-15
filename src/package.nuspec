@@ -11,7 +11,7 @@
     <iconUrl>http://umplify.com/wp-content/uploads/2017/11/umplify_logo.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>This package contains the necessary classes and features to leverage Xunit's fixture class for Microsoft dependency inection framework.</description>
-    <copyright>2021 - All rights reserved, Umplify Technologies Inc</copyright>
-    <tags>xunit dependency-injection microsoft-dependency-injection</tags>
+    <copyright>2022 - All rights reserved, Umplify Technologies Inc.</copyright>
+    <tags>xunit dependency-injection microsoft-dependency-injection< xunit-dependency-injection</tags>
   </metadata>
 </package>

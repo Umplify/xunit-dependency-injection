@@ -39,8 +39,6 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	public T? GetService<T>(ITestOutputHelper testOutputHelper)
 		=> GetServiceProvider(testOutputHelper).GetService<T>();
 
-	[Obsolete("GetConfigurationFile() method is now deprecated. Please override GetConfigurationFiles() method instead and yield return your current settings file name e.g. 'appsettings.json'.", true)]
-	protected virtual string GetConfigurationFile() => throw new NotSupportedException();
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
 	protected abstract IEnumerable<string> GetConfigurationFiles();
 
@@ -62,6 +60,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		{
 			ConfigurationBuilder.AddJsonFile(configurationFile);
 		}
+		ConfigurationBuilder.AddEnvironmentVariables();
 		return ConfigurationBuilder.Build();
 	}
 
