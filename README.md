@@ -4,14 +4,14 @@
 [![Xunit.Microsoft.DependencyInjection on fuget.org](https://www.fuget.org/packages/Xunit.Microsoft.DependencyInjection/badge.svg)](https://www.fuget.org/packages/Xunit.Microsoft.DependencyInjection)
 
 # Xunit Dependency Injection framework
-Xunit does not come with any built-in dependency injection features, therefore developers have to come up with their own solution to recruit their favourite dependency injection frameworks in their tests.
+Xunit does not come with any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
-This library brings in Microsoft's dependency injection container to Xunit by leveraging fixtures.
+This library brings in Microsoft's dependency injection container to Xunit scope by leveraging Xunit fixtures.
 
-## Get started
+## Getting started
 
 ### Nuget package
-First add the nuget package to your Xunit project:
+First add the following [nuget package](https://www.nuget.org/packages/Xunit.Microsoft.DependencyInjection/) to your Xunit project:
 
 ```
 Install-Package Xunit.Microsoft.DependencyInjection
@@ -19,14 +19,14 @@ Install-Package Xunit.Microsoft.DependencyInjection
 
 ### Setup your fixture
 
-There is an abstract class called ```Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture``` which contains the necessary functionalities to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class derived from this abstract class must implement the following two abstract methods:
+The abstract class of `Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture` contains the necessary functionalities to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class must derive from this abstract class and implement the following two abstract methods:
 
 ```csharp
-protected abstract string GetConfigurationFile();
+protected abstract IEnumerable<string> GetConfigurationFiles();
 protected abstract void AddServices(IServiceCollection services, IConfiguration configuration);
 ```
 
-```GetConfigurationFile(...)``` method returns the name of the configuration file in your Xunit test project. ```AddServices(...)``` is used to wire up services.
+`GetConfigurationFiles(...)` method returns a collection of the configuration files in your Xunit test project to the framework. `AddServices(...)` method must be used to wire up the implemented services.
 
 ### Access the wired up services
 There are two method that you can use to access the wired up service depending on your context:
