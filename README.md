@@ -4,9 +4,9 @@
 [![Xunit.Microsoft.DependencyInjection on fuget.org](https://www.fuget.org/packages/Xunit.Microsoft.DependencyInjection/badge.svg)](https://www.fuget.org/packages/Xunit.Microsoft.DependencyInjection)
 
 # Xunit Dependency Injection framework
-Xunit does not come with any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
+Xunit does not support any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
-This library brings in Microsoft's dependency injection container to Xunit scope by leveraging Xunit fixtures.
+This library brings in Microsoft's dependency injection container to Xunit by leveraging Xunit's fixture.
 
 ## Getting started
 
@@ -49,7 +49,7 @@ Also, the test class should be decorated by the following attribute:
 ```
 
 ## Running tests in order
-The library has a bonus feature that simplifies running tests in order. The test class does not have to be derived from ```TestBed<T>``` class though and it can apply to all Xunit classes.
+The library also has a bonus feature that simplifies running tests in order. The test class does not have to be derived from ```TestBed<T>``` class though and it can apply to all Xunit classes.
 
 Decorate your Xunit test class with the following attribute and associate ```TestOrder(...)``` with ```Fact``` and ```Theory```:
 
