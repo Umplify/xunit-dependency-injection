@@ -17,7 +17,7 @@ steps:
   displayName: 'Use .NET 6.0 sdk'
   inputs:
     packageType: sdk
-    version: 6.0.101
+    version: 6.0.200
     installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2
