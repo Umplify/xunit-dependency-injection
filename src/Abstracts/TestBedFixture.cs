@@ -40,25 +40,28 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		=> GetServiceProvider(testOutputHelper).GetService<T>();
 
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
+	
+	[Obsolete("This method is deprecated. Please override and use GetTestAppSettings() method instead.", true)]
 	protected abstract IEnumerable<string> GetConfigurationFiles();
+	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
 
 	protected virtual ILoggingBuilder AddLoggingProvider(ILoggingBuilder loggingBuilder, ILoggerProvider loggerProvider)
 		=> loggingBuilder.AddProvider(loggerProvider);
 
 	private IConfigurationRoot? GetConfigurationRoot()
 	{
-		var configurationFiles = GetConfigurationFiles();
+		var testAppSettings = GetTestAppSettings();
 		return
-			configurationFiles.All(c => !string.IsNullOrEmpty(c))
-			? GetConfigurationRoot(configurationFiles)
+			testAppSettings.All(setting => !string.IsNullOrEmpty(setting.Filename))
+			? GetConfigurationRoot(testAppSettings)
 			: default;
 	}
 
-	private IConfigurationRoot GetConfigurationRoot(IEnumerable<string> configurationFiles)
+	private IConfigurationRoot GetConfigurationRoot(IEnumerable<TestAppSettings> configurationFiles)
 	{
 		foreach (var configurationFile in configurationFiles)
 		{
-			ConfigurationBuilder.AddJsonFile(configurationFile);
+			ConfigurationBuilder.AddJsonFile(configurationFile.Filename, optional: configurationFile.IsOptional);
 		}
 		ConfigurationBuilder.AddEnvironmentVariables();
 		return ConfigurationBuilder.Build();
