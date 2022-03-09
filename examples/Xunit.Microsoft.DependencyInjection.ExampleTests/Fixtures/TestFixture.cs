@@ -1,11 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit.Microsoft.DependencyInjection.Abstracts;
-using Xunit.Microsoft.DependencyInjection.ExampleTests.Services;
-
-namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures;
+﻿namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures;
 
 public class TestFixture : TestBedFixture
 {
@@ -17,8 +10,14 @@ public class TestFixture : TestBedFixture
     protected override ValueTask DisposeAsyncCore()
         => new();
 
+    [Obsolete]
     protected override IEnumerable<string> GetConfigurationFiles()
     {
         yield return "appsettings.json";
+    }
+
+    protected override IEnumerable<TestAppSettings> GetTestAppSettings()
+    {
+        yield return new() { Filename = "appsettings.json", IsOptional = false };
     }
 }
