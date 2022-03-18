@@ -1,6 +1,6 @@
 ﻿namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 
-public abstract class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>, IAsyncDisposable
+public class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>, IAsyncDisposable
 	where TFixture : class
 {
 	protected readonly ITestOutputHelper _testOutputHelper;
@@ -41,8 +41,6 @@ public abstract class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>, 
 		GC.SuppressFinalize(this);
 	}
 
-	protected abstract void Clear();
-
 	public async ValueTask DisposeAsync()
 	{
 		if (!_disposedAsync)
@@ -53,5 +51,6 @@ public abstract class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>, 
 		}
 	}
 
-	protected abstract ValueTask DisposeAsyncCore();
+	protected virtual void Clear() { }
+	protected virtual ValueTask DisposeAsyncCore() => new();
 }

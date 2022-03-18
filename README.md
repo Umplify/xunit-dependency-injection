@@ -48,7 +48,16 @@ Also, the test class should be decorated by the following attribute:
 [CollectionDefinition("Dependency Injection")]
 ```
 
+#### Clearing managed resources
+
+To have managed resources cleaned up, simply override the virtual method of `Clear()`. This is an optional step.
+
+#### Clearing managed resourced asynchronously
+
+Simply override the virtual method of `DisposeAsyncCore()` for this purpose. This is also an optional step.
+
 ## Running tests in order
+
 The library also has a bonus feature that simplifies running tests in order. The test class does not have to be derived from ```TestBed<T>``` class though and it can apply to all Xunit classes.
 
 Decorate your Xunit test class with the following attribute and associate ```TestOrder(...)``` with ```Fact``` and ```Theory```:
