@@ -40,8 +40,6 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		=> GetServiceProvider(testOutputHelper).GetService<T>();
 
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
-	
-	[Obsolete("This method is deprecated. Please override and use GetTestAppSettings() method instead.", true)]
 	protected abstract IEnumerable<string> GetConfigurationFiles();
 	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
 

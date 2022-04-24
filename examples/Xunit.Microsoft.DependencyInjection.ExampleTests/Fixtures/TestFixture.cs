@@ -10,7 +10,6 @@ public class TestFixture : TestBedFixture
     protected override ValueTask DisposeAsyncCore()
         => new();
 
-    [Obsolete]
     protected override IEnumerable<string> GetConfigurationFiles()
     {
         yield return "appsettings.json";
