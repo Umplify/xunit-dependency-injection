@@ -40,7 +40,6 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		=> GetServiceProvider(testOutputHelper).GetService<T>();
 
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
-	protected abstract IEnumerable<string> GetConfigurationFiles();
 	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
 
 	protected virtual ILoggingBuilder AddLoggingProvider(ILoggingBuilder loggingBuilder, ILoggerProvider loggerProvider)
