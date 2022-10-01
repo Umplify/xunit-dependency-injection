@@ -26,7 +26,7 @@ steps:
     command: 'restore'
     projects: |
       **/Xunit.Microsoft.DependencyInjection.csproj
-      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
+      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
     feedsToUse: 'select'
 - script: echo Started building the source code
 - task: DotNetCoreCLI@2
@@ -35,7 +35,7 @@ steps:
     command: 'build'
     projects: |
       **/Xunit.Microsoft.DependencyInjection.csproj
-      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
+      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
     arguments: '--configuration $(BuildConfiguration)'
 - task: NuGetCommand@2
   displayName: 'Packing'
@@ -43,7 +43,7 @@ steps:
     command: 'pack'
     packagesToPack: |
       **/Xunit.Microsoft.DependencyInjection.csproj
-      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
+      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'Build.BuildNumber'
     
