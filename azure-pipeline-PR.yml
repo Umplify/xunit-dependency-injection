@@ -17,27 +17,33 @@ steps:
   displayName: 'Use .NET 6.0 sdk'
   inputs:
     packageType: sdk
-    version: 6.0.400
+    version: 6.0.401
     installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2
   displayName: 'Restoring'
   inputs:
     command: 'restore'
-    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    projects: |
+      **/Xunit.Microsoft.DependencyInjection.csproj
+      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
     feedsToUse: 'select'
 - script: echo Started building the source code
 - task: DotNetCoreCLI@2
   displayName: 'Building'
   inputs:
     command: 'build'
-    projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    projects: |
+      **/Xunit.Microsoft.DependencyInjection.csproj
+      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
     arguments: '--configuration $(BuildConfiguration)'
 - task: NuGetCommand@2
   displayName: 'Packing'
   inputs:
     command: 'pack'
-    packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    packagesToPack: |
+      **/Xunit.Microsoft.DependencyInjection.csproj
+      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'Build.BuildNumber'
     
