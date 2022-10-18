@@ -66,6 +66,14 @@ Decorate your Xunit test class with the following attribute and associate ```Tes
 [TestCaseOrderer("Xunit.Microsoft.DependencyInjection.TestsOrder.TestPriorityOrderer", "Xunit.Microsoft.DependencyInjection")]
 ```
 
+## Supporting configuration from `UserSecrets`
+
+This library's `TestBedFixture` abstract class exposes an instance of `IConfigurationBuilder` that can be used to support `UserSecrets` when configuring the test projects:
+
+```csharp
+public IConfigurationBuilder ConfigurationBuilder { get; private set; }
+```
+
 ## Examples
 
 * Please [follow this link](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests) to view a couple of examples on utilizing this library.
