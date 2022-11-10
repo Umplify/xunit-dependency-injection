@@ -4,6 +4,11 @@
 [![Xunit.Microsoft.DependencyInjection on fuget.org](https://www.fuget.org/packages/Xunit.Microsoft.DependencyInjection/badge.svg)](https://www.fuget.org/packages/Xunit.Microsoft.DependencyInjection)
 
 # Xunit Dependency Injection framework
+
+*(The source code of the .NET 7.0 version of this library is retained in [the fork of this repo](https://github.com/Umplify/xunit-dependency-injection-NET7) while the .NET 6.0 version of this library is maintained and supported in this repo.)*
+
+---
+
 Xunit does not support any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
 This library brings in Microsoft's dependency injection container to Xunit by leveraging Xunit's fixture.
