@@ -42,6 +42,7 @@ steps:
     arguments: '--configuration $(BuildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'Running tests in example folder'
+  continueOnError: true
   inputs:
     command: 'test'
     projects: '**/examples/Xunit.Microsoft.DependencyInjection.ExampleTests'
