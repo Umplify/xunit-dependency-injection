@@ -30,7 +30,7 @@ public class OutputLogger : ILogger
 		}
 		else
 		{
-			_testOutputHelper.WriteLine($"{logLevel} - Category: {_categoryName} : {DateTime.Now}");
+			_testOutputHelper.WriteLine($"{logLevel} - Category: {_categoryName} : {state} :: {DateTime.Now}");
 		}
 	}
 }
