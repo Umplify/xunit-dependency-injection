@@ -58,7 +58,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	{
 		foreach (var configurationFile in configurationFiles)
 		{
-			ConfigurationBuilder.AddJsonFile(configurationFile.Filename, optional: configurationFile.IsOptional);
+			ConfigurationBuilder.AddJsonFile(configurationFile.Filename!, optional: configurationFile.IsOptional);
 		}
 		ConfigurationBuilder.AddEnvironmentVariables();
 		return ConfigurationBuilder.Build();
