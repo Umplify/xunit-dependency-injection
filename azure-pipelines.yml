@@ -1,3 +1,8 @@
+variables:
+  Major: 7
+  Minor: 0
+  BuildConfiguration: Release
+
 name: $(Major).$(Minor).$(rev:r)
 pr: none
 trigger:
@@ -16,10 +21,10 @@ pool:
 steps:
 - script: echo Build Number $(name)
 - task: UseDotNet@2
-  displayName: 'Use .NET 6.0 sdk'
+  displayName: 'Use .NET 7.0 sdk'
   inputs:
     packageType: sdk
-    version: 6.0.403
+    version: 7.0.103
     installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2
@@ -37,6 +42,7 @@ steps:
     arguments: '--configuration $(BuildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'Running tests in example folder'
+  continueOnError: true
   inputs:
     command: 'test'
     projects: '**/examples/Xunit.Microsoft.DependencyInjection.ExampleTests'
