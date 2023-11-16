@@ -1,5 +1,5 @@
 variables:
-  Major: 7
+  Major: 8
   Minor: 0
   BuildConfiguration: Release
 
