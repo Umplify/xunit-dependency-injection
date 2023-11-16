@@ -3,7 +3,7 @@
 ![Nuget](https://img.shields.io/nuget/dt/Xunit.Microsoft.DependencyInjection)
 [![Xunit.Microsoft.DependencyInjection on fuget.org](https://www.fuget.org/packages/Xunit.Microsoft.DependencyInjection/badge.svg)](https://www.fuget.org/packages/Xunit.Microsoft.DependencyInjection)
 
-# Xunit Dependency Injection framework
+# Xunit Dependency Injection framework - .NET 8.0
 
 Xunit does not support any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
