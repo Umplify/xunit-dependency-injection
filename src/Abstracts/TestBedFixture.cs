@@ -12,7 +12,6 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		_services = new ServiceCollection();
 		ConfigurationBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
 		Configuration = GetConfigurationRoot();
-		AddServices(_services, Configuration);
 	}
 
 	public IConfigurationRoot? Configuration { get; private set; }
@@ -25,6 +24,8 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 			return _serviceProvider;
 		}
 
+		AddServices(_services, Configuration);
+  
 		_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
 		return _serviceProvider = _services.BuildServiceProvider();
 	}
