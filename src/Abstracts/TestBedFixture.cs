@@ -6,12 +6,14 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	private IServiceProvider? _serviceProvider;
 	private bool _disposedValue;
 	private bool _disposedAsync;
+	private bool _servicesAdded;
 
 	protected TestBedFixture()
 	{
 		_services = new ServiceCollection();
 		ConfigurationBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
 		Configuration = GetConfigurationRoot();
+		_servicesAdded = false;
 	}
 
 	public IConfigurationRoot? Configuration { get; private set; }
@@ -23,9 +25,11 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		{
 			return _serviceProvider;
 		}
-
-		AddServices(_services, Configuration);
-  
+		if(!_servicesAdded)
+		{
+			AddServices(_services, Configuration);
+			_servicesAdded = true;
+		}
 		_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
 		return _serviceProvider = _services.BuildServiceProvider();
 	}
