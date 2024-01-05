@@ -14,7 +14,7 @@ pool:
 steps:
 - script: echo Build Number $(name)
 - task: UseDotNet@2
-  displayName: 'Use .NET 7.0 sdk'
+  displayName: 'Use .NET 8.0 sdk'
   inputs:
     packageType: sdk
     version: 8.0.100
@@ -37,13 +37,4 @@ steps:
       **/Xunit.Microsoft.DependencyInjection.csproj
       **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
     arguments: '--configuration $(BuildConfiguration)'
-- task: NuGetCommand@2
-  displayName: 'Packing'
-  inputs:
-    command: 'pack'
-    packagesToPack: |
-      **/Xunit.Microsoft.DependencyInjection.csproj
-      **/examples/Xunit.Microsoft.DependencyInjection.ExampleTests/Xunit.Microsoft.DependencyInjection.ExampleTests.csproj
-    versioningScheme: 'byEnvVar'
-    versionEnvVar: 'Build.BuildNumber'
     
