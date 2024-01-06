@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
 		<PackageReference Include="xunit" Version="2.6.3" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.5">
@@ -24,11 +25,6 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Fixtures\" />
-		<Folder Include="Services\" />
-	</ItemGroup>
 	<ItemGroup>
 		<None Remove="appsettings.json" />
 	</ItemGroup>
@@ -39,5 +35,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Xunit.Microsoft.DependencyInjection.csproj" />
+		<ProjectReference Include="..\Xunit.Microsoft.DependencyInjection.ExampleTests.CalculationService\Xunit.Microsoft.DependencyInjection.ExampleTests.CalculationService.csproj" />
 	</ItemGroup>
 </Project>

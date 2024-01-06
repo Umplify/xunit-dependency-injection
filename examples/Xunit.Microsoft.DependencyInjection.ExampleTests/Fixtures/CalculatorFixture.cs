@@ -1,6 +1,6 @@
 ﻿namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures;
 
-public class TestFixture : TestBedFixture
+public class CalculatorFixture : TestBedFixture
 {
     protected override void AddServices(IServiceCollection services, IConfiguration? configuration)
         => services

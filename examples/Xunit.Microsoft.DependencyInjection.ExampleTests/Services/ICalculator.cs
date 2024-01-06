@@ -2,5 +2,5 @@
 
 public interface ICalculator
 {
-    int Add(int x, int y);
+    Task<int> Add(int x, int y);
 }
