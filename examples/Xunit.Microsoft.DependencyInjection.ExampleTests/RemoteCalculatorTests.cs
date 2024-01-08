@@ -16,7 +16,7 @@ public class RemoteCalculatorTests : TestBed<RemoteCalculatorFixture>
     {
         var calculator = _fixture.GetService<ICalculator>(_testOutputHelper);
         var option = _fixture.GetService<IOptions<Options>>(_testOutputHelper);
-        var calculated = await calculator?.Add(x, y);
+        var calculated = await calculator?.AddAsync(x, y);
         var expected = option?.Value.Rate * (x + y);
         Assert.True(expected == calculated);
     }

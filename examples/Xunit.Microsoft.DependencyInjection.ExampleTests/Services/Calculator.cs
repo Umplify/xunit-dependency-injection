@@ -11,7 +11,7 @@ public class Calculator : ICalculator
     public Calculator(ILogger<Calculator> logger, IOptions<Options> option)
         => (_logger, _option) = (logger, option.Value);
 
-    public Task<int> Add(int x, int y)
+    public Task<int> AddAsync(int x, int y)
     {
         var result = (x + y) * _option.Rate;
         _logger.LogInformation("The result is {@Result}", result);
