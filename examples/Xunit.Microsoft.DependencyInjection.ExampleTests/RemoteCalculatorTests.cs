@@ -12,11 +12,11 @@ public class RemoteCalculatorTests : TestBed<RemoteCalculatorFixture>
 
     [Theory]
     [InlineData(1, 2)]
-    public async Task Test1(int x, int y)
+    public async Task TestAsync(int x, int y)
     {
-        var calculator = _fixture.GetService<ICalculator>(_testOutputHelper);
-        var option = _fixture.GetService<IOptions<Options>>(_testOutputHelper);
-        var calculated = await calculator?.AddAsync(x, y);
+        var calculator = _fixture.GetService<ICalculator>(_testOutputHelper)!;
+        var option = _fixture.GetService<IOptions<Options>>(_testOutputHelper)!;
+        var calculated = await calculator.AddAsync(x, y);
         var expected = option?.Value.Rate * (x + y);
         Assert.True(expected == calculated);
     }
