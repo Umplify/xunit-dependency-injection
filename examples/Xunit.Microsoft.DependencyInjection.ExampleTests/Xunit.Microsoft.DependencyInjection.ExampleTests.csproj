@@ -40,6 +40,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Xunit.Microsoft.DependencyInjection.csproj" />
-		<ProjectReference Include="..\Xunit.Microsoft.DependencyInjection.ExampleTests.CalculationService\Xunit.Microsoft.DependencyInjection.ExampleTests.CalculationService.csproj" />
 	</ItemGroup>
 </Project>
