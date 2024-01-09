@@ -1,19 +1,13 @@
 ﻿namespace Xunit.Microsoft.DependencyInjection.Logging;
 
-public class OutputLogger : ILogger
+public class OutputLogger(string categoryName, ITestOutputHelper testOutputHelper) : ILogger
 {
-	private readonly ITestOutputHelper _testOutputHelper;
-	private readonly string _categoryName;
+	private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+	private readonly string _categoryName = categoryName;
 
 	public OutputLogger(ITestOutputHelper testOutputHelper)
 		: this("Tests", testOutputHelper)
 	{
-	}
-
-	public OutputLogger(string categoryName, ITestOutputHelper testOutputHelper)
-	{
-		_testOutputHelper = testOutputHelper;
-		_categoryName = categoryName;
 	}
 
 	public IDisposable? BeginScope<TState>(TState state) where TState : notnull

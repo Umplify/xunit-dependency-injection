@@ -6,10 +6,7 @@ using Xunit.Microsoft.DependencyInjection.ExampleTests.CalculationService;
 
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Services;
 
-public class RemoteCalculator(
-    ILogger<Calculator> logger,
-    IOptions<Options> option,
-    IHttpClientFactory factory) : ICalculator
+public class RemoteCalculator(ILogger<Calculator> logger, IOptions<Options> option, IHttpClientFactory factory) : ICalculator
 {
     private readonly Options _option = option.Value;
 

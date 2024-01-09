@@ -6,7 +6,7 @@ public class RemoteCalculatorFixture : TestBedFixture
 {
     public WebApplicationFactory<Program> Factory { get; }
 
-    public RemoteCalculatorFixture(IMessageSink messageSink)
+    public RemoteCalculatorFixture()
     {
         Factory = new WebApplicationFactory<Program>();
     }
@@ -23,13 +23,5 @@ public class RemoteCalculatorFixture : TestBedFixture
     protected override IEnumerable<TestAppSettings> GetTestAppSettings()
     {
         yield return new() { Filename = "appsettings.json", IsOptional = false };
-    }
-}
-
-public class StaticClientFactory(HttpClient client) : IHttpClientFactory
-{
-    public HttpClient CreateClient(string name)
-    {
-        return client;
     }
 }

@@ -3,13 +3,10 @@ using Microsoft.Extensions.Options;
 
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Services;
 
-public class Calculator : ICalculator
+public class Calculator(ILogger<Calculator> logger, IOptions<Options> option) : ICalculator
 {
-    private readonly Options _option;
-    private readonly ILogger<Calculator> _logger;
-
-    public Calculator(ILogger<Calculator> logger, IOptions<Options> option)
-        => (_logger, _option) = (logger, option.Value);
+    private readonly Options _option = option.Value;
+    private readonly ILogger<Calculator> _logger = logger;
 
     public Task<int> AddAsync(int x, int y)
     {

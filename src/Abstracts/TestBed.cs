@@ -1,15 +1,12 @@
 ﻿namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 
-public class TestBed<TFixture> : IDisposable, IClassFixture<TFixture>, IAsyncDisposable
+public class TestBed<TFixture>(ITestOutputHelper testOutputHelper, TFixture fixture) : IDisposable, IClassFixture<TFixture>, IAsyncDisposable
 	where TFixture : class
 {
-	protected readonly ITestOutputHelper _testOutputHelper;
-	protected readonly TFixture _fixture;
+	protected readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+	protected readonly TFixture _fixture = fixture;
 	private bool _disposedValue;
 	private bool _disposedAsync;
-
-	public TestBed(ITestOutputHelper testOutputHelper, TFixture fixture)
-		=> (_testOutputHelper, _fixture) = (testOutputHelper, fixture);
 
 	protected virtual void Dispose(bool disposing)
 	{
