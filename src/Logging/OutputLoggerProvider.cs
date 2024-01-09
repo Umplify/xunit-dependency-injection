@@ -1,11 +1,8 @@
 ﻿namespace Xunit.Microsoft.DependencyInjection.Logging;
 
-public class OutputLoggerProvider : ILoggerProvider
+public class OutputLoggerProvider(ITestOutputHelper testOutputHelper) : ILoggerProvider
 {
-	private readonly ITestOutputHelper _testOutputHelper;
-
-	public OutputLoggerProvider(ITestOutputHelper testOutputHelper)
-		=> _testOutputHelper = testOutputHelper;
+	private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
 	public ILogger CreateLogger(string categoryName)
 		=> new OutputLogger(categoryName, _testOutputHelper);

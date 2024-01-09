@@ -27,7 +27,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Fixtures\" />
 		<Folder Include="Services\" />
 	</ItemGroup>
 	<ItemGroup>
