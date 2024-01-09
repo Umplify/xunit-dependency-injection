@@ -1,6 +1,0 @@
-@HostAddress = http://localhost:8080
-
-POST {{HostAddress}}/add
-Content-Type: application/json
-
-{"X":"1", "Y":"4"}
