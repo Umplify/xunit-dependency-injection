@@ -89,3 +89,4 @@ Do not forget to include the following nuget packages to your Xunit project:
 * Microsoft.Extensions.Configuration.FileExtensions
 * Microsoft.Extensions.Configuration.Json
 * Microsoft.Extensions.Logging
+* Microsoft.Extensions.Configuration.EnvironmentVariables
