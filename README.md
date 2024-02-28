@@ -36,6 +36,12 @@ public T GetScopedService<T>(ITestOutputHelper testOutputHelper);
 public T GetService<T>(ITestOutputHelper testOutputHelper);
 ```
 
+To access async scopes simply call the following method in the abstract fixture class:
+
+```csharp
+public AsyncServiceScope GetAsyncScope<T>(ITestOutputHelper testOutputHelper)
+```
+
 ### Adding custom logging provider
 Test developers can add their own desired logger provider by overriding ```AddLoggingProvider(...)``` virtual method defined in ```TestBedFixture``` class.
 
