@@ -41,7 +41,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		return scope.ServiceProvider.GetService<T>();
 	}
 
-	public AsyncServiceScope GetAsyncScope<T>(ITestOutputHelper testOutputHelper)
+	public AsyncServiceScope GetAsyncScope(ITestOutputHelper testOutputHelper)
 	{
 		var serviceProvider = GetServiceProvider(testOutputHelper);
 		return serviceProvider.CreateAsyncScope();
