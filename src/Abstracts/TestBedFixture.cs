@@ -114,7 +114,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		if (!_disposedAsync)
 		{
 			await DisposeAsyncCore();
-			GC.SuppressFinalize(this);
+			Dispose();
 			_disposedAsync = true;
 		}
 	}
