@@ -1,11 +1,12 @@
 ﻿namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 
-public abstract class TestBedFixture : IDisposable, IAsyncDisposable
+public abstract class TestBedFixture : IDisposable, IAsyncLifetime
 {
 	private readonly IServiceCollection _services;
 	private IServiceProvider? _serviceProvider;
 	private bool _disposedValue;
 	private bool _disposedAsync;
+	private bool _initializedAsync;
 	private bool _servicesAdded;
 
 	protected TestBedFixture()
@@ -109,7 +110,15 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	public async ValueTask DisposeAsync()
+	public async Task InitializeAsync()
+	{
+		if (!_initializedAsync)
+		{
+			await InitializeAsyncCore();
+		}
+	}
+
+	public async Task DisposeAsync()
 	{
 		if (!_disposedAsync)
 		{
@@ -120,4 +129,6 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	}
 
 	protected abstract ValueTask DisposeAsyncCore();
+
+	protected virtual ValueTask InitializeAsyncCore() => new();
 }
