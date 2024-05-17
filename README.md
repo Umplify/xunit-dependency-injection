@@ -42,6 +42,13 @@ To access async scopes simply call the following method in the abstract fixture 
 public AsyncServiceScope GetAsyncScope<T>(ITestOutputHelper testOutputHelper)
 ```
 
+### Accessing the keyed wired up services in .NET 8.0
+You can call the following method to access the keyed already-wired up services:
+
+```csharp
+T? GetKeyedService<T>([DisallowNull] string key, ITestOutputHelper testOutputHelper);
+```
+
 ### Adding custom logging provider
 Test developers can add their own desired logger provider by overriding ```AddLoggingProvider(...)``` virtual method defined in ```TestBedFixture``` class.
 
