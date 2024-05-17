@@ -1,9 +1,11 @@
-﻿namespace Xunit.Microsoft.DependencyInjection.Abstracts;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 
 public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 {
 	private readonly IServiceCollection _services;
-	private IServiceProvider? _serviceProvider;
+	private ServiceProvider? _serviceProvider;
 	private bool _disposedValue;
 	private bool _disposedAsync;
 	private bool _servicesAdded;
@@ -19,9 +21,9 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	public IConfigurationRoot? Configuration { get; private set; }
 	public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 
-	public IServiceProvider GetServiceProvider(ITestOutputHelper testOutputHelper)
+	public ServiceProvider GetServiceProvider(ITestOutputHelper testOutputHelper)
 	{
-		if (_serviceProvider != default)
+		if (_serviceProvider is not null)
 		{
 			return _serviceProvider;
 		}
@@ -49,6 +51,9 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 
 	public T? GetService<T>(ITestOutputHelper testOutputHelper)
 		=> GetServiceProvider(testOutputHelper).GetService<T>();
+
+	public T? GetKeyedService<T>([DisallowNull] string key, ITestOutputHelper testOutputHelper)
+		=> GetServiceProvider(testOutputHelper).GetKeyedService<T>(key);
 
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
 	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();

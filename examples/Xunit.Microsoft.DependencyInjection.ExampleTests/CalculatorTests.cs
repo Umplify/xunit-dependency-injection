@@ -3,11 +3,11 @@ using Options = Xunit.Microsoft.DependencyInjection.ExampleTests.Services.Option
 
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 
-public class CalculatorTests : TestBed<CalculatorFixture>
+public class CalculatorTests : TestBed<TestProjectFixture>
 {
     private readonly Options _options;
 
-    public CalculatorTests(ITestOutputHelper testOutputHelper, CalculatorFixture fixture)
+    public CalculatorTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture)
         : base(testOutputHelper, fixture) => _options = _fixture.GetService<IOptions<Options>>(_testOutputHelper)!.Value;
 
     [Theory]
