@@ -1,7 +1,7 @@
 variables:
   Major: 8
   Minor: 1
-  Revision: 0
+  Revision: 1
   BuildConfiguration: Release
 
 name: $(Major).$(Minor).$(Revision)
@@ -25,7 +25,7 @@ steps:
   displayName: 'Use .NET 8.0 sdk'
   inputs:
     packageType: sdk
-    version: 8.0.300
+    version: 8.0.302
     installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2
