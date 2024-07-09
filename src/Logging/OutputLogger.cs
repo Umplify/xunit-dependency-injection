@@ -18,13 +18,20 @@ public class OutputLogger(string categoryName, ITestOutputHelper testOutputHelpe
 
 	public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
 	{
-		if (exception is not null)
+		try
 		{
-			_testOutputHelper.WriteLine($"{logLevel} - Category: {_categoryName} : {formatter(state, exception)} :: {DateTime.Now}");
+			if (exception is not null)
+			{
+				_testOutputHelper.WriteLine($"{logLevel} - Category: {_categoryName} : {formatter(state, exception)} :: {DateTime.Now}");
+			}
+			else
+			{
+				_testOutputHelper.WriteLine($"{logLevel} - Category: {_categoryName} : {state} :: {DateTime.Now}");
+			}
 		}
-		else
+		catch
 		{
-			_testOutputHelper.WriteLine($"{logLevel} - Category: {_categoryName} : {state} :: {DateTime.Now}");
+			//Ignore
 		}
 	}
 }
