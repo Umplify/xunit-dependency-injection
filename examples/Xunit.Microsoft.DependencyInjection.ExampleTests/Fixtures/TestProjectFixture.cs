@@ -7,7 +7,8 @@ public class TestProjectFixture : TestBedFixture
         .AddTransient<ICalculator, Calculator>()
         .AddKeyedTransient<ICarMaker, Porsche>("Porsche")
         .AddKeyedTransient<ICarMaker, Toyota>("Toyota")
-        .Configure<Options>(config => configuration?.GetSection("Options").Bind(config));
+        .Configure<Options>(config => configuration?.GetSection("Options").Bind(config))
+        .Configure<SecretValues>(config => configuration?.GetSection(nameof(SecretValues)).Bind(config));
 
     protected override ValueTask DisposeAsyncCore()
         => new();
@@ -16,4 +17,7 @@ public class TestProjectFixture : TestBedFixture
     {
         yield return new() { Filename = "appsettings.json", IsOptional = false };
     }
+
+    protected override void AddUserSecrets(IConfigurationBuilder configurationBuilder) 
+        => configurationBuilder.AddUserSecrets<TestProjectFixture>();
 }

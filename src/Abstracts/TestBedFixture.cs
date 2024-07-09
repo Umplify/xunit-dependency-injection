@@ -14,6 +14,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	{
 		_services = new ServiceCollection();
 		ConfigurationBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
+		AddUserSecrets(ConfigurationBuilder);
 		Configuration = GetConfigurationRoot();
 		_servicesAdded = false;
 	}
@@ -30,9 +31,10 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		if(!_servicesAdded)
 		{
 			AddServices(_services, Configuration);
+			_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
+			_services.AddOptions();
 			_servicesAdded = true;
 		}
-		_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
 		return _serviceProvider = _services.BuildServiceProvider();
 	}
 
@@ -55,11 +57,37 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	public T? GetKeyedService<T>([DisallowNull] string key, ITestOutputHelper testOutputHelper)
 		=> GetServiceProvider(testOutputHelper).GetKeyedService<T>(key);
 
+	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+	// ~AbstractDependencyInjectionFixture()
+	// {
+	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+	//     Dispose(disposing: false);
+	// }
+
+	public void Dispose()
+	{
+		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (!_disposedAsync)
+		{
+			await DisposeAsyncCore();
+			Dispose();
+			_disposedAsync = true;
+		}
+	}
+
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
 	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
 
 	protected virtual ILoggingBuilder AddLoggingProvider(ILoggingBuilder loggingBuilder, ILoggerProvider loggerProvider)
 		=> loggingBuilder.AddProvider(loggerProvider);
+
+	protected virtual void AddUserSecrets(IConfigurationBuilder configurationBuilder) { }
 
 	private IConfigurationRoot? GetConfigurationRoot()
 	{
@@ -97,30 +125,6 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
 			// TODO: set large fields to null
 			_disposedValue = true;
-		}
-	}
-
-	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-	// ~AbstractDependencyInjectionFixture()
-	// {
-	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-	//     Dispose(disposing: false);
-	// }
-
-	public void Dispose()
-	{
-		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		Dispose(disposing: true);
-		GC.SuppressFinalize(this);
-	}
-
-	public async ValueTask DisposeAsync()
-	{
-		if (!_disposedAsync)
-		{
-			await DisposeAsyncCore();
-			Dispose();
-			_disposedAsync = true;
 		}
 	}
 
