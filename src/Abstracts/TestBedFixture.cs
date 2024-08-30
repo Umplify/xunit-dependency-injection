@@ -4,7 +4,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 
 public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 {
-	private readonly IServiceCollection _services;
+	private readonly ServiceCollection _services;
 	private ServiceProvider? _serviceProvider;
 	private bool _disposedValue;
 	private bool _disposedAsync;
@@ -79,6 +79,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 			Dispose();
 			_disposedAsync = true;
 		}
+		GC.SuppressFinalize(this);
 	}
 
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
