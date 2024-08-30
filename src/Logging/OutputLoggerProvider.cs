@@ -7,7 +7,5 @@ public class OutputLoggerProvider(ITestOutputHelper testOutputHelper) : ILoggerP
 	public ILogger CreateLogger(string categoryName)
 		=> new OutputLogger(categoryName, _testOutputHelper);
 
-	public void Dispose()
-	{
-	}
+	public void Dispose() => GC.SuppressFinalize(this);
 }
