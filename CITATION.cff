@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this library, please cite it as below."
+authors:
+- family-names: "Sabet"
+  given-names: "Arash"
+  orcid: "https://orcid.org/0009-0004-0416-9935"
+title: "Xunit Dependency Injection"
+version: 2.0.4
+doi: 10.5281/zenodo.1234
+date-released: 2020-11-23
+url: "https://github.com/Umplify/xunit-dependency-injection"
