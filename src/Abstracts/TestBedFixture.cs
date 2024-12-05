@@ -28,7 +28,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		{
 			return _serviceProvider;
 		}
-		if(!_servicesAdded)
+		if (!_servicesAdded)
 		{
 			AddServices(_services, Configuration);
 			_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
@@ -54,8 +54,10 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	public T? GetService<T>(ITestOutputHelper testOutputHelper)
 		=> GetServiceProvider(testOutputHelper).GetService<T>();
 
+#if NET8_0_OR_GREATER
 	public T? GetKeyedService<T>([DisallowNull] string key, ITestOutputHelper testOutputHelper)
 		=> GetServiceProvider(testOutputHelper).GetKeyedService<T>(key);
+#endif
 
 	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
 	// ~AbstractDependencyInjectionFixture()
@@ -83,12 +85,15 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	}
 
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
+
 	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
 
 	protected virtual ILoggingBuilder AddLoggingProvider(ILoggingBuilder loggingBuilder, ILoggerProvider loggerProvider)
 		=> loggingBuilder.AddProvider(loggerProvider);
 
-	protected virtual void AddUserSecrets(IConfigurationBuilder configurationBuilder) { }
+	protected virtual void AddUserSecrets(IConfigurationBuilder configurationBuilder)
+	{
+	}
 
 	private IConfigurationRoot? GetConfigurationRoot()
 	{

@@ -1,20 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsPackable>True</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
-    <PackageReference Include="xunit.core" Version="2.9.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
+    <PackageReference Include="xunit.abstractions" Version="[2.0.3,)" />
+    <PackageReference Include="xunit.core" Version="[2.9.2,)" />
   </ItemGroup>
+
+  <PropertyGroup Condition="$(TargetFramework) == 'net6.0'">
+      <MinMicrosoftExtensionsVersion>6</MinMicrosoftExtensionsVersion>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="$(TargetFramework) == 'net7.0'">
+      <MinMicrosoftExtensionsVersion>7</MinMicrosoftExtensionsVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework) == 'net8.0'">
+      <MinMicrosoftExtensionsVersion>8</MinMicrosoftExtensionsVersion>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="$(TargetFramework) == 'net9.0'">
+      <MinMicrosoftExtensionsVersion>9</MinMicrosoftExtensionsVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MinMicrosoftExtensionsVersion).*" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MinMicrosoftExtensionsVersion).*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="$(MinMicrosoftExtensionsVersion).*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MinMicrosoftExtensionsVersion).*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MinMicrosoftExtensionsVersion).*" />
+  </ItemGroup>
+
   <ItemGroup>
 	<None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
