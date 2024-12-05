@@ -2,11 +2,11 @@
 ![Nuget](https://img.shields.io/nuget/v/Xunit.Microsoft.DependencyInjection)
 ![Nuget](https://img.shields.io/nuget/dt/Xunit.Microsoft.DependencyInjection)
 
-# Xunit Dependency Injection framework - .NET 9.0
+# Xunit Dependency Injection framework
 
-Xunit does not support any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
+Xunit does not support any built-in dependency injection features, therefore developers have had to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
-This library brings in Microsoft's dependency injection container to Xunit by leveraging Xunit's fixture.
+This library brings Microsoft's dependency injection container to Xunit by leveraging Xunit's fixture.
 
 ## Getting started
 
@@ -20,7 +20,7 @@ Install-Package Xunit.Microsoft.DependencyInjection
 
 ### Setup your fixture
 
-The abstract class of `Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture` contains the necessary functionalities to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class must derive from this abstract class and implement the following two abstract methods:
+The abstract class of `Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture` contains the necessary functionality to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class must derive from this abstract class and implement the following two abstract methods:
 
 ```csharp
 protected abstract IEnumerable<string> GetConfigurationFiles();
@@ -52,7 +52,7 @@ To access async scopes simply call the following method in the abstract fixture 
 public AsyncServiceScope GetAsyncScope<T>(ITestOutputHelper testOutputHelper)
 ```
 
-### Accessing the keyed wired up services in .NET 8.0
+### Accessing the keyed wired up services in .NET 8.0+
 
 You can call the following method to access the keyed already-wired up services:
 

@@ -1,22 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+    <IsPackable>True</IsPackable>
+    <PackageId>Xunit.Microsoft.DependencyInjection</PackageId>
+    <Title>Microsoft Dependency Injection utility for Xunit</Title>
+    <Version>9.0</Version>
+    <Authors>Arash Sabet</Authors>
+    <Company>Umplify Technologies Inc.</Company>
+    <PackageLicenseFile>..\LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://umplify.github.io/xunit-dependency-injection/</PackageProjectUrl>
+    <PackageIconUrl>http://umplify.com/wp-content/uploads/2017/11/umplify_logo.png</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Description>This package contains the necessary classes and features to leverage Xunit's fixture class for Microsoft dependency inection framework.</Description>
+    <Copyright>2024 - All rights reserved, Umplify Technologies Inc.</Copyright>  
+    <PackageTags>xunit dependency-injection microsoft-dependency-injection xunit-dependency-injection</PackageTags>
+</PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
-    <PackageReference Include="xunit.core" Version="2.9.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
+    <PackageReference Include="xunit.abstractions" Version="[2.0.3,)" />
+    <PackageReference Include="xunit.core" Version="[2.9.2,)" />
   </ItemGroup>
+
+  <PropertyGroup Condition="$(TargetFramework) == 'net6.0'">
+      <MinMicrosoftExtensionsVersion>6</MinMicrosoftExtensionsVersion>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="$(TargetFramework) == 'net7.0'">
+      <MinMicrosoftExtensionsVersion>7</MinMicrosoftExtensionsVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework) == 'net8.0'">
+      <MinMicrosoftExtensionsVersion>8</MinMicrosoftExtensionsVersion>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="$(TargetFramework) == 'net9.0'">
+      <MinMicrosoftExtensionsVersion>9</MinMicrosoftExtensionsVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MinMicrosoftExtensionsVersion).*" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MinMicrosoftExtensionsVersion).*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="$(MinMicrosoftExtensionsVersion).*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MinMicrosoftExtensionsVersion).*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MinMicrosoftExtensionsVersion).*" />
+  </ItemGroup>
+
   <ItemGroup>
 	<None Include="..\README.md" Pack="true" PackagePath="\" />
+	<None Include="..\LICENSE" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Abstracts\" />
