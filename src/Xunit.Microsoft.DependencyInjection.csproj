@@ -6,7 +6,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
     <IsPackable>True</IsPackable>
-  </PropertyGroup>
+    <PackageId>Xunit.Microsoft.DependencyInjection</PackageId>
+    <Title>Microsoft Dependency Injection utility for Xunit</Title>
+    <Version>9.0</Version>
+    <Authors>Arash Sabet</Authors>
+    <Company>Umplify Technologies Inc.</Company>
+    <PackageLicenseFile>..\LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://umplify.github.io/xunit-dependency-injection/</PackageProjectUrl>
+    <PackageIconUrl>http://umplify.com/wp-content/uploads/2017/11/umplify_logo.png</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Description>This package contains the necessary classes and features to leverage Xunit's fixture class for Microsoft dependency inection framework.</Description>
+    <Copyright>2024 - All rights reserved, Umplify Technologies Inc.</Copyright>  
+    <PackageTags>xunit dependency-injection microsoft-dependency-injection xunit-dependency-injection</PackageTags>
+</PropertyGroup>
   <ItemGroup>
     <PackageReference Include="xunit.abstractions" Version="[2.0.3,)" />
     <PackageReference Include="xunit.core" Version="[2.9.2,)" />
@@ -38,6 +50,7 @@
 
   <ItemGroup>
 	<None Include="..\README.md" Pack="true" PackagePath="\" />
+	<None Include="..\LICENSE" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Abstracts\" />
