@@ -84,6 +84,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
 	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
+	protected abstract ValueTask DisposeAsyncCore();
 
 	protected virtual ILoggingBuilder AddLoggingProvider(ILoggingBuilder loggingBuilder, ILoggerProvider loggerProvider)
 		=> loggingBuilder.AddProvider(loggerProvider);
@@ -127,7 +128,5 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 			// TODO: set large fields to null
 			_disposedValue = true;
 		}
-	}
-
-	protected abstract ValueTask DisposeAsyncCore();
+	}	
 }

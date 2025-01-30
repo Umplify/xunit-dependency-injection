@@ -23,8 +23,9 @@ Install-Package Xunit.Microsoft.DependencyInjection
 The abstract class of `Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture` contains the necessary functionalities to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class must derive from this abstract class and implement the following two abstract methods:
 
 ```csharp
-protected abstract IEnumerable<string> GetConfigurationFiles();
-protected abstract void AddServices(IServiceCollection services, IConfiguration configuration);
+protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
+protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
+protected abstract ValueTask DisposeAsyncCore();
 ```
 
 `GetConfigurationFiles(...)` method returns a collection of the configuration files in your Xunit test project to the framework. `AddServices(...)` method must be used to wire up the implemented services.
@@ -52,7 +53,7 @@ To access async scopes simply call the following method in the abstract fixture 
 public AsyncServiceScope GetAsyncScope<T>(ITestOutputHelper testOutputHelper)
 ```
 
-### Accessing the keyed wired up services in .NET 8.0
+### Accessing the keyed wired up services in .NET 9.0
 
 You can call the following method to access the keyed already-wired up services:
 
