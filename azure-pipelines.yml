@@ -67,6 +67,9 @@ steps:
     publishLocation: 'Container'
 
 - script: echo Started packing and pushing
+- task: NuGetAuthenticate@1
+  inputs:
+    nuGetServiceConnections: 'NuGet'
 
 - task: NuGetCommand@2
   displayName: 'Packing'
