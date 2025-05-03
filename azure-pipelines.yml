@@ -17,7 +17,7 @@ trigger:
       - README.md
 
 pool:
-  vmImage: 'ubuntu-24.04'
+  vmImage: 'ubuntu-22.04'
 
 steps:
 - script: echo Build Number $(name)
