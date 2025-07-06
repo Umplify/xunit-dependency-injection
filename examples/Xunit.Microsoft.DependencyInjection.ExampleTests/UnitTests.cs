@@ -1,6 +1,8 @@
+using Xunit.Microsoft.DependencyInjection.TestsOrder;
+
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 
-[TestCaseOrderer("Xunit.Microsoft.DependencyInjection.TestsOrder.TestPriorityOrderer", "Xunit.Microsoft.DependencyInjection")]
+[TestCaseOrderer(typeof(TestPriorityOrderer))]
 public class UnitTests
 {
     [Fact, TestOrder(1)]
@@ -14,14 +16,14 @@ public class UnitTests
     [Fact, TestOrder(3)]
     public async Task Test3()
     {
-        await Task.Delay(3000);
+        await Task.Delay(3000, TestContext.Current.CancellationToken);
         Assert.Equal(1, 1);
     }
 
     [Fact, TestOrder(4)]
     public async Task Test4()
     {
-        await Task.Delay(5000);
+        await Task.Delay(5000, TestContext.Current.CancellationToken);
         Assert.True(1 > 0);
     }
 }

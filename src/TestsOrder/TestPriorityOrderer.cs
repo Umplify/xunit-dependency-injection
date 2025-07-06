@@ -1,8 +1,11 @@
-﻿namespace Xunit.Microsoft.DependencyInjection.TestsOrder;
+﻿using System.Reflection;
+using Xunit.v3;
+
+namespace Xunit.Microsoft.DependencyInjection.TestsOrder;
 
 public class TestPriorityOrderer : ITestCaseOrderer
 {
-	public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+	public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 		where TTestCase : ITestCase
 	{
 		var sortedMethods = new SortedDictionary<int, List<TTestCase>>();
@@ -10,23 +13,35 @@ public class TestPriorityOrderer : ITestCaseOrderer
 		foreach (var testCase in testCases)
 		{
 			var priority = 0;
-
-			foreach (var attr in testCase.TestMethod.Method.GetCustomAttributes(typeof(TestOrderAttribute).AssemblyQualifiedName))
+			var testMethod = testCase.TestMethod;
+			var type = Type.GetType(testMethod?.TestClass.TestClassNamespace ?? string.Empty) ?? AppDomain.CurrentDomain
+					.GetAssemblies()
+					.Select(a => a.GetType(testMethod?.TestClass?.TestClassName ?? string.Empty))
+					.FirstOrDefault(t => t != null);
+			var method = type?.GetMethod(testMethod?.MethodName ?? string.Empty);
+			var attributes = method?.GetCustomAttributes(typeof(TestOrderAttribute));
+			foreach (var attr in attributes!)
 			{
-				priority = attr.GetNamedArgument<int>("Priority");
+				if (attr is TestOrderAttribute orderAttr)
+				{
+					priority = orderAttr.Priority;
+				}
 			}
 
 			GetOrCreate(sortedMethods, priority).Add(testCase);
 		}
 
+		var testCaseCollection = new List<TTestCase>();
 		foreach (var list in sortedMethods.Keys.Select(priority => sortedMethods[priority]))
 		{
-			list.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.Method.Name, y.TestMethod.Method.Name));
+			list.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.MethodName, y.TestMethod?.MethodName));
 			foreach (var testCase in list)
 			{
-				yield return testCase;
+				testCaseCollection.Add(testCase);
 			}
 		}
+
+		return testCaseCollection.AsReadOnly();
 	}
 
 	private TValue GetOrCreate<TKey, TValue>(IDictionary<TKey, TValue> dictionary, TKey key)
