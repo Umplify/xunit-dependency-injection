@@ -13,12 +13,14 @@ public class TestPriorityOrderer : ITestCaseOrderer
 		foreach (var testCase in testCases)
 		{
 			var priority = 0;
-
 			var testMethod = testCase.TestMethod;
-			var type = Type.GetType(testMethod.TestClass.TestClassNamespace);
-			var method = type?.GetMethod(testMethod.MethodName);
+			var type = Type.GetType(testMethod?.TestClass.TestClassNamespace ?? string.Empty) ?? AppDomain.CurrentDomain
+					.GetAssemblies()
+					.Select(a => a.GetType(testMethod?.TestClass?.TestClassName ?? string.Empty))
+					.FirstOrDefault(t => t != null);
+			var method = type?.GetMethod(testMethod?.MethodName ?? string.Empty);
 			var attributes = method?.GetCustomAttributes(typeof(TestOrderAttribute));
-			foreach (var attr in attributes)
+			foreach (var attr in attributes!)
 			{
 				if (attr is TestOrderAttribute orderAttr)
 				{
@@ -32,7 +34,7 @@ public class TestPriorityOrderer : ITestCaseOrderer
 		var testCaseCollection = new List<TTestCase>();
 		foreach (var list in sortedMethods.Keys.Select(priority => sortedMethods[priority]))
 		{
-			list.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.MethodName, y.TestMethod.MethodName));
+			list.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.MethodName, y.TestMethod?.MethodName));
 			foreach (var testCase in list)
 			{
 				testCaseCollection.Add(testCase);
