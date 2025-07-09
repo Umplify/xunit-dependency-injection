@@ -10,10 +10,10 @@ This library brings in Microsoft's dependency injection container to Xunit by le
 
 ## Important: xUnit versions
 
-For xUnit packages use Xunit.Microsoft.DependencyInjection up to 9.x.x
-For xUnit.v3 packages use Xunit.Microsoft.DependencyInjection from 10.x.x
+* For **xUnit** packages use Xunit.Microsoft.DependencyInjection versions **up to** 9.0.5
+* For **xUnit.v3** packages use Xunit.Microsoft.DependencyInjection versions **from** 9.1.0
 
-Also check the [migration guide](https://xunit.net/docs/getting-started/v3/migration) from xUnit for test authors.
+Also please check the [migration guide](https://xunit.net/docs/getting-started/v3/migration) from xUnit for test authors.
 
 ## Getting started
 
