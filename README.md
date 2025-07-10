@@ -8,6 +8,19 @@ Xunit does not support any built-in dependency injection features, therefore dev
 
 This library brings in Microsoft's dependency injection container to Xunit by leveraging Xunit's fixture.
 
+## Important: xUnit versions
+
+* For **xUnit** packages use Xunit.Microsoft.DependencyInjection versions **up to** 9.0.5
+* For **xUnit.v3** packages use Xunit.Microsoft.DependencyInjection versions **from** 9.1.0
+
+Also please check the [migration guide](https://xunit.net/docs/getting-started/v3/migration) from xUnit for test authors.
+
+### Example on how to reference xunit.v3
+
+```xml
+<PackageReference Include="xunit.v3" Version="2.0.3" />
+```
+
 ## Getting started
 
 ### Nuget package
