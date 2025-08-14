@@ -17,7 +17,7 @@ public class CalculatorTests : TestBed<TestProjectFixture>
         var calculator = _fixture.GetService<ICalculator>(_testOutputHelper)!;
         var calculatedValue = await calculator.AddAsync(x, y);
         var expected = _options.Rate * (x + y);
-        Assert.True(expected == calculatedValue);
+        Assert.Equal(expected, calculatedValue);
     }
 
     [Theory]
@@ -27,6 +27,6 @@ public class CalculatorTests : TestBed<TestProjectFixture>
         var calculator = _fixture.GetScopedService<ICalculator>(_testOutputHelper)!;
         var calculatedValue = await calculator.AddAsync(x, y);
         var expected = _options.Rate * (x + y);
-        Assert.True(expected == calculatedValue);
+        Assert.Equal(expected, calculatedValue);
     }
 }
