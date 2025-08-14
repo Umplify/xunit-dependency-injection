@@ -63,7 +63,7 @@ public T GetService<T>(ITestOutputHelper testOutputHelper);
 To access async scopes simply call the following method in the abstract fixture class:
 
 ```csharp
-public AsyncServiceScope GetAsyncScope<T>(ITestOutputHelper testOutputHelper)
+public AsyncServiceScope GetAsyncScope(ITestOutputHelper testOutputHelper);
 ```
 
 ### Accessing the keyed wired up services in .NET 9.0
