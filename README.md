@@ -45,7 +45,7 @@ protected abstract ValueTask DisposeAsyncCore();
 
 #### Secret manager
 
-[Secret manage](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=windows#how-the-secret-manager-tool-works) is a great tool to store credentials, api keys and other secret information for development purpose. This library has started supporting user secrets from version 8.2.0 onwards. To utilize user secrets in your tests, simply override the `virtual` method below from `TestBedFixture` class:
+[Secret manager](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=windows#how-the-secret-manager-tool-works) is a great tool to store credentials, API keys, and other secret information for development purposes. This library has started supporting user secrets from version 8.2.0 onwards. To utilize user secrets in your tests, simply override the `virtual` method below from the `TestBedFixture` class:
 
 ```csharp
 protected override void AddUserSecrets(IConfigurationBuilder configurationBuilder); 
