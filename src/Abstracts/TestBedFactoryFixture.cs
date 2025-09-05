@@ -100,7 +100,7 @@ public abstract class TestBedFactoryFixture : TestBedFixture
                                 var keyedService = GetKeyedService(parameter.ParameterType, keyAttribute.Key, testOutputHelper);
                                 arg = keyedService;
                             }
-                            catch (Exception ex)
+                            catch
                             {
                                 // If keyed service resolution fails, try using reflection as fallback
                                 var method = typeof(ServiceProviderKeyedServiceExtensions)
