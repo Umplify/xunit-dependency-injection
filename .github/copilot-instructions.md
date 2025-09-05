@@ -10,13 +10,16 @@ Always reference these instructions first and fallback to search or bash command
 - **CRITICAL**: This project requires .NET 9.0 SDK (version 9.0.304 or later) and .NET 9.0 runtime (version 9.0.8 or later).
 - Install .NET 9.0 SDK:
   ```bash
-  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 9.0.304 --install-dir /tmp/dotnet
+  # Download the install script
+  curl -sSL -o dotnet-install.sh https://dot.net/v1/dotnet-install.sh
+  # Download the official SHA-256 checksum (replace URL with actual checksum file if available)
+  curl -sSL -o dotnet-install.sh.sha256 https://dot.net/v1/dotnet-install.sh.sha256
+  # Verify checksum
+  sha256sum -c dotnet-install.sh.sha256
+  # If verification passes, install .NET SDK
+  bash dotnet-install.sh --version 9.0.304 --install-dir /tmp/dotnet
   export PATH="/tmp/dotnet:$PATH"
   export DOTNET_ROOT="/tmp/dotnet"
-  ```
-- Install .NET 9.0 runtime:
-  ```bash
-  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 9.0.8 --runtime dotnet --install-dir /tmp/dotnet
   ```
 - Verify installation: `dotnet --version` should return `9.0.304` or later
 - Verify runtime: `dotnet --list-runtimes` should show `Microsoft.NETCore.App 9.0.8`
