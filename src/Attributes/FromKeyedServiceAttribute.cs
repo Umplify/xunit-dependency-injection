@@ -6,17 +6,14 @@ namespace Xunit.Microsoft.DependencyInjection.Attributes;
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
 public sealed class FromKeyedServiceAttribute : Attribute
 {
-    /// <summary>
-    /// Gets the key for the keyed service
-    /// </summary>
-    public string Key { get; }
+	/// <summary>
+	/// Gets the key for the keyed service
+	/// </summary>
+	public string Key { get; }
 
-    /// <summary>
-    /// Initializes a new instance of the FromKeyedServiceAttribute
-    /// </summary>
-    /// <param name="key">The key for the keyed service</param>
-    public FromKeyedServiceAttribute(string key)
-    {
-        Key = key ?? throw new ArgumentNullException(nameof(key));
-    }
+	/// <summary>
+	/// Initializes a new instance of the FromKeyedServiceAttribute
+	/// </summary>
+	/// <param name="key">The key for the keyed service</param>
+	public FromKeyedServiceAttribute(string key) => Key = key ?? throw new ArgumentNullException(nameof(key));
 }

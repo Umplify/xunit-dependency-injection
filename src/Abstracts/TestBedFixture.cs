@@ -28,7 +28,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		{
 			return _serviceProvider;
 		}
-		if(!_servicesAdded)
+		if (!_servicesAdded)
 		{
 			AddServices(_services, Configuration);
 			_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
@@ -128,5 +128,5 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 			// TODO: set large fields to null
 			_disposedValue = true;
 		}
-	}	
+	}
 }

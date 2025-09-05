@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 
 /// <summary>
