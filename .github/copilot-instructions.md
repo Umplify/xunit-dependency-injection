@@ -118,7 +118,7 @@ Always use the examples to validate that your changes don't break real-world usa
 - **Package creation**: ~1-2 seconds
 - **Complete workflow**: ~20-25 seconds total
 
-**CRITICAL**: NEVER CANCEL builds or tests. These times are normal. Set timeouts to 60+ minutes for safety, but actual operations complete much faster.
+**CRITICAL**: NEVER CANCEL builds or tests. These times are normal. Set timeouts to 2-5 minutes to catch actual hanging processes, but actual operations complete much faster.
 
 ## Azure DevOps Integration
 The project uses Azure Pipelines (not GitHub Actions) for CI/CD:
