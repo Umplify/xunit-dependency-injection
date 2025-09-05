@@ -6,7 +6,10 @@
 
 Xunit does not support any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
-This library brings in Microsoft's dependency injection container to Xunit by leveraging Xunit's fixture.
+This library brings Microsoft's dependency injection container to Xunit by leveraging Xunit's fixture pattern and now supports **two approaches** for dependency injection:
+
+1. **Traditional Fixture-Based Approach** - Access services via `_fixture.GetService<T>(_testOutputHelper)` (fully supported, backward compatible)
+2. **Constructor Dependency Injection** - Inject services directly into test class properties using the `[Inject]` attribute (new feature)
 
 ## Important: xUnit versions
 
@@ -74,6 +77,94 @@ You can call the following method to access the keyed already-wired up services:
 T? GetKeyedService<T>([DisallowNull] string key, ITestOutputHelper testOutputHelper);
 ```
 
+## Constructor Dependency Injection
+
+**New in this version**: The library now supports constructor-style dependency injection while maintaining full backward compatibility with the existing fixture-based approach.
+
+### Property Injection with TestBedWithDI (Recommended)
+
+For cleaner test code, inherit from `TestBedWithDI<TFixture>` instead of `TestBed<TFixture>` and use the `[Inject]` attribute:
+
+```csharp
+public class PropertyInjectionTests : TestBedWithDI<TestProjectFixture>
+{
+    [Inject]
+    public ICalculator? Calculator { get; set; }
+
+    [Inject]
+    public IOptions<Options>? Options { get; set; }
+
+    public PropertyInjectionTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture)
+        : base(testOutputHelper, fixture)
+    {
+        // Dependencies are automatically injected after construction
+    }
+
+    [Fact]
+    public async Task TestWithCleanSyntax()
+    {
+        // Dependencies are immediately available - no fixture calls needed
+        Assert.NotNull(Calculator);
+        var result = await Calculator.AddAsync(5, 3);
+        Assert.True(result > 0);
+    }
+}
+```
+
+### Keyed Services with Property Injection
+
+Use the `[Inject("key")]` attribute for keyed services:
+
+```csharp
+public class PropertyInjectionTests : TestBedWithDI<TestProjectFixture>
+{
+    [Inject("Porsche")]
+    internal ICarMaker? PorscheCarMaker { get; set; }
+
+    [Inject("Toyota")]
+    internal ICarMaker? ToyotaCarMaker { get; set; }
+
+    [Fact]
+    public void TestKeyedServices()
+    {
+        Assert.NotNull(PorscheCarMaker);
+        Assert.NotNull(ToyotaCarMaker);
+        Assert.Equal("Porsche", PorscheCarMaker.Manufacturer);
+        Assert.Equal("Toyota", ToyotaCarMaker.Manufacturer);
+    }
+}
+```
+
+### Convenience Methods
+
+The `TestBedWithDI` class provides convenience methods that don't require the `_testOutputHelper` parameter:
+
+```csharp
+protected T? GetService<T>()
+protected T? GetScopedService<T>()
+protected T? GetKeyedService<T>(string key)
+```
+
+### Benefits of Constructor Dependency Injection
+
+- ✅ **Clean, declarative syntax** - Use `[Inject]` attribute on properties
+- ✅ **No manual fixture calls** - Dependencies available immediately in test methods  
+- ✅ **Full keyed services support** - Both regular and keyed services work seamlessly
+- ✅ **Backward compatible** - All existing `TestBed<TFixture>` code continues to work unchanged
+- ✅ **Gradual migration** - Adopt new approach incrementally without breaking existing tests
+
+### Migration Guide
+
+You can migrate existing tests gradually:
+
+1. **Keep existing approach** - Continue using `TestBed<TFixture>` with fixture methods
+2. **Hybrid approach** - Change to `TestBedWithDI<TFixture>` and use both `[Inject]` properties and fixture methods
+3. **Full migration** - Use property injection for all dependencies for cleanest code
+
+### Factory Pattern (Experimental)
+
+For true constructor injection into service classes, see [CONSTRUCTOR_INJECTION.md](CONSTRUCTOR_INJECTION.md) for the factory-based approach.
+
 ### Adding custom logging provider
 
 Test developers can add their own desired logger provider by overriding ```AddLoggingProvider(...)``` virtual method defined in ```TestBedFixture``` class.
@@ -116,7 +207,10 @@ public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 
 ## Examples
 
-* Please [follow this link](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests) to view a couple of examples on utilizing this library.
+* Please [follow this link](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests) to view examples utilizing both the traditional fixture-based approach and the new constructor dependency injection features.
+* **Traditional approach**: See examples using `TestBed<TFixture>` and `_fixture.GetService<T>(_testOutputHelper)`  
+* **Constructor injection**: See `PropertyInjectionTests.cs` for examples using `TestBedWithDI<TFixture>` with `[Inject]` attributes
+* **Factory pattern**: See `FactoryConstructorInjectionTests.cs` for experimental constructor injection scenarios
 * [Digital Silo](https://digitalsilo.io/)'s unit tests and integration tests are using this library.
 
 ### One more thing
