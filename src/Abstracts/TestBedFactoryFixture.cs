@@ -140,7 +140,8 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 			{
 				try
 				{
-					return Activator.CreateInstance(testType, args.ToArray())!;
+					// Use constructor.Invoke for better control over internal constructors
+					return constructor.Invoke(args.ToArray())!;
 				}
 				catch
 				{

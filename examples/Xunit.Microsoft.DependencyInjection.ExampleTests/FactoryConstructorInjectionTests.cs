@@ -99,29 +99,3 @@ public class CustomTestClass
         CustomData = customData ?? throw new ArgumentNullException(nameof(customData));
     }
 }
-
-/// <summary>
-/// Debug test to check if factory works with non-keyed services
-/// </summary>
-public class DebugNonKeyedFactoryTests : TestBed<FactoryTestProjectFixture>
-{
-    public DebugNonKeyedFactoryTests(ITestOutputHelper testOutputHelper, FactoryTestProjectFixture fixture)
-        : base(testOutputHelper, fixture)
-    {
-    }
-
-    [Fact]
-    public async Task TestSimpleCalculatorServiceFactory()
-    {
-        // Test creating SimpleCalculatorService without keyed dependencies
-        var simpleCalculator = _fixture.CreateTestInstance<SimpleCalculatorService>(_testOutputHelper);
-        
-        // Act
-        var result = await simpleCalculator.CalculateAsync(10, 5);
-        var rate = simpleCalculator.GetRate();
-
-        // Assert
-        var expected = rate * (10 + 5);
-        Assert.Equal(expected, result);
-    }
-}
