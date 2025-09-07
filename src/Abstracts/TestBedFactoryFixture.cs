@@ -42,8 +42,8 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 
 	private object CreateInstance(Type testType, IServiceProvider serviceProvider, ITestOutputHelper testOutputHelper, params object[] additionalParameters)
 	{
-		// Find the best constructor
-		var constructors = testType.GetConstructors()
+		// Find the best constructor (including internal constructors)
+		var constructors = testType.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
 			.OrderByDescending(c => c.GetParameters().Length)
 			.ToArray();
 
@@ -78,15 +78,42 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 				{
 					try
 					{
-						// Check for keyed service attribute (custom FromKeyedServiceAttribute)
-						var keyAttribute = parameter.GetCustomAttribute<Xunit.Microsoft.DependencyInjection.Attributes.FromKeyedServiceAttribute>();
-						if (keyAttribute != null)
+						// Check for keyed service attributes using a broader approach
+						var allAttributes = parameter.GetCustomAttributes(true);
+						object? keyValue = null;
+						
+						foreach (var attr in allAttributes)
 						{
-							// Use reflection to call GetKeyedService<T>
-							var method = typeof(ServiceProviderKeyedServiceExtensions)
-								.GetMethod(nameof(ServiceProviderKeyedServiceExtensions.GetKeyedService), [typeof(IServiceProvider), typeof(object)])
-								?.MakeGenericMethod(parameter.ParameterType);
-							arg = method?.Invoke(null, [serviceProvider, keyAttribute.Key]);
+							var attrType = attr.GetType();
+							// Look for any attribute with "FromKeyed" in its name and a Key property
+							if (attrType.Name.Contains("FromKeyed") || attrType.FullName?.Contains("FromKeyedService") == true)
+							{
+								var keyProperty = attrType.GetProperty("Key");
+								if (keyProperty != null)
+								{
+									keyValue = keyProperty.GetValue(attr);
+									break;
+								}
+							}
+						}
+						
+						if (keyValue != null && keyValue is string key)
+						{
+							// Use the fixture's existing GetKeyedService method instead of reflection
+							try
+							{
+								var getKeyedServiceMethod = GetType().BaseType?.GetMethod("GetKeyedService", 
+									new[] { typeof(string), typeof(ITestOutputHelper) })?.MakeGenericMethod(parameter.ParameterType);
+								arg = getKeyedServiceMethod?.Invoke(this, new object[] { key, testOutputHelper });
+							}
+							catch
+							{
+								// Fallback to direct reflection approach
+								var method = typeof(ServiceProviderKeyedServiceExtensions)
+									.GetMethod(nameof(ServiceProviderKeyedServiceExtensions.GetKeyedService), [typeof(IServiceProvider), typeof(object)])
+									?.MakeGenericMethod(parameter.ParameterType);
+								arg = method?.Invoke(null, [serviceProvider, keyValue]);
+							}
 						}
 						else
 						{

@@ -28,7 +28,8 @@ public class FactoryTestProjectFixture : TestBedFactoryFixture
 
         // Register the CalculatorService and SingleKeyedService for factory injection
         .AddTransient<CalculatorService>()
-        .AddTransient<SingleKeyedService>();
+        .AddTransient<SingleKeyedService>()
+        .AddTransient<SimpleCalculatorService>();
 
     protected override ValueTask DisposeAsyncCore()
         => new();
