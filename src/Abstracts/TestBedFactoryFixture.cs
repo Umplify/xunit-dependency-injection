@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 
@@ -34,17 +35,7 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 		return CreateInstance(testType, serviceProvider, testOutputHelper, additionalParameters);
 	}
 
-	/// <summary>
-	/// Gets a keyed service by type - helper method for factory creation
-	/// </summary>
-	protected object? GetKeyedService(Type serviceType, string key, ITestOutputHelper testOutputHelper)
-	{
-		var serviceProvider = GetServiceProvider(testOutputHelper);
-		var method = typeof(ServiceProviderKeyedServiceExtensions)
-			.GetMethod(nameof(ServiceProviderKeyedServiceExtensions.GetKeyedService), [typeof(IServiceProvider), typeof(object)])
-			?.MakeGenericMethod(serviceType);
-		return method?.Invoke(null, [serviceProvider, key]);
-	}
+
 
 	private T CreateInstance<T>(IServiceProvider serviceProvider, ITestOutputHelper testOutputHelper, params object[] additionalParameters)
 		where T : class => (T)CreateInstance(typeof(T), serviceProvider, testOutputHelper, additionalParameters);
@@ -87,24 +78,15 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 				{
 					try
 					{
-						// Check for keyed service attribute
-						var keyAttribute = parameter.GetCustomAttribute<FromKeyedServiceAttribute>();
+						// Check for keyed service attribute (custom FromKeyedServiceAttribute)
+						var keyAttribute = parameter.GetCustomAttribute<Xunit.Microsoft.DependencyInjection.Attributes.FromKeyedServiceAttribute>();
 						if (keyAttribute != null)
 						{
-							// Try using the existing GetKeyedService method from the fixture
-							try
-							{
-								var keyedService = GetKeyedService(parameter.ParameterType, keyAttribute.Key, testOutputHelper);
-								arg = keyedService;
-							}
-							catch
-							{
-								// If keyed service resolution fails, try using reflection as fallback
-								var method = typeof(ServiceProviderKeyedServiceExtensions)
-									.GetMethod(nameof(ServiceProviderKeyedServiceExtensions.GetKeyedService), [typeof(IServiceProvider), typeof(object)])
-									?.MakeGenericMethod(parameter.ParameterType);
-								arg = method?.Invoke(null, [serviceProvider, keyAttribute.Key]);
-							}
+							// Use reflection to call GetKeyedService<T>
+							var method = typeof(ServiceProviderKeyedServiceExtensions)
+								.GetMethod(nameof(ServiceProviderKeyedServiceExtensions.GetKeyedService), [typeof(IServiceProvider), typeof(object)])
+								?.MakeGenericMethod(parameter.ParameterType);
+							arg = method?.Invoke(null, [serviceProvider, keyAttribute.Key]);
 						}
 						else
 						{
