@@ -1,6 +1,6 @@
-﻿namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures;
+namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures;
 
-public class TestProjectFixture : TestBedFixture
+public class FactoryTestProjectFixture : TestBedFactoryFixture
 {
     protected override void AddServices(IServiceCollection services, IConfiguration? configuration)
         => services
@@ -23,8 +23,12 @@ public class TestProjectFixture : TestBedFixture
         .AddTransient<Func<ISingletonService>>(provider => () => provider.GetService<ISingletonService>()!)
 
         // Configure options
-        .Configure<Options>(config => configuration?.GetSection("Options").Bind(config))
-        .Configure<SecretValues>(config => configuration?.GetSection(nameof(SecretValues)).Bind(config));
+        .Configure<Services.Options>(config => configuration?.GetSection("Options").Bind(config))
+        .Configure<SecretValues>(config => configuration?.GetSection(nameof(SecretValues)).Bind(config))
+
+        // Register the CalculatorService and SingleKeyedService for factory injection
+        .AddTransient<CalculatorService>()
+        .AddTransient<SingleKeyedService>();
 
     protected override ValueTask DisposeAsyncCore()
         => new();
@@ -35,5 +39,5 @@ public class TestProjectFixture : TestBedFixture
     }
 
     protected override void AddUserSecrets(IConfigurationBuilder configurationBuilder)
-        => configurationBuilder.AddUserSecrets<TestProjectFixture>();
+        => configurationBuilder.AddUserSecrets<FactoryTestProjectFixture>();
 }

@@ -3,8 +3,15 @@ using Xunit.v3;
 
 namespace Xunit.Microsoft.DependencyInjection.TestsOrder;
 
+/// <summary>
+/// Orders test cases by the value specified in <see cref="Attributes.TestOrderAttribute"/>.
+/// Tests with equal priority are then ordered alphabetically by method name for determinism.
+/// </summary>
 public class TestPriorityOrderer : ITestCaseOrderer
 {
+	/// <summary>
+	/// Orders the provided test cases based on <see cref="Attributes.TestOrderAttribute"/>.
+	/// </summary>
 	public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 		where TTestCase : ITestCase
 	{
@@ -44,6 +51,9 @@ public class TestPriorityOrderer : ITestCaseOrderer
 		return testCaseCollection.AsReadOnly();
 	}
 
+	/// <summary>
+	/// Returns the existing value for the key or creates and inserts a new instance.
+	/// </summary>
 	private TValue GetOrCreate<TKey, TValue>(IDictionary<TKey, TValue> dictionary, TKey key)
 		where TValue : new()
 	{

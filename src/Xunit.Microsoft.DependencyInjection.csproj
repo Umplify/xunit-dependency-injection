@@ -5,17 +5,35 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
+  <!-- Enable XML documentation output for NuGet consumers -->
+  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  <!-- Enforce completeness: do NOT suppress CS1591 (removed) -->
+  <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Xunit.Microsoft.DependencyInjection.xml</DocumentationFile>
+  <!-- Repository / SourceLink metadata -->
+  <RepositoryUrl>https://github.com/Umplify/xunit-dependency-injection</RepositoryUrl>
+  <RepositoryType>git</RepositoryType>
+  <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  <IncludeSymbols>true</IncludeSymbols>
+  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  <EnableSourceLink>true</EnableSourceLink>
+  <!-- Optional: mark builds as CI to embed commit information when built on CI -->
+  <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.8" />
     <PackageReference Include="xunit.v3.extensibility.core" Version="3.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.8" />
+  <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
 	<None Include="..\README.md" Pack="true" PackagePath="\" />
+  <!-- Explicitly include XML documentation file in package -->
+  <None Include="bin\$(Configuration)\$(TargetFramework)\Xunit.Microsoft.DependencyInjection.xml" Pack="true" PackagePath="\" Condition="Exists('bin\\$(Configuration)\\$(TargetFramework)\\Xunit.Microsoft.DependencyInjection.xml')" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Abstracts\" />

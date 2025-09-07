@@ -2,5 +2,5 @@
 
 internal class Porsche : ICarMaker
 {
-    public string Manufacturer =>nameof(Porsche);
+    public string Manufacturer => nameof(Porsche);
 }
