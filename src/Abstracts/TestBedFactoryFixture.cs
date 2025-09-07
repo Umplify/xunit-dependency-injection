@@ -1,5 +1,5 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 
@@ -81,7 +81,7 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 						// Check for keyed service attributes using a broader approach
 						var allAttributes = parameter.GetCustomAttributes(true);
 						object? keyValue = null;
-						
+
 						foreach (var attr in allAttributes)
 						{
 							var attrType = attr.GetType();
@@ -96,13 +96,13 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 								}
 							}
 						}
-						
+
 						if (keyValue != null && keyValue is string key)
 						{
 							// Use the fixture's existing GetKeyedService method instead of reflection
 							try
 							{
-								var getKeyedServiceMethod = GetType().BaseType?.GetMethod("GetKeyedService", 
+								var getKeyedServiceMethod = GetType().BaseType?.GetMethod("GetKeyedService",
 									new[] { typeof(string), typeof(ITestOutputHelper) })?.MakeGenericMethod(parameter.ParameterType);
 								arg = getKeyedServiceMethod?.Invoke(this, new object[] { key, testOutputHelper });
 							}

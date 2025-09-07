@@ -112,6 +112,15 @@ public class AdvancedDependencyInjectionTests : TestBedWithDI<TestProjectFixture
         var scopedResults = new List<string>();
         var singletonResults = new List<string>();
 
+        // Capture initial states to make relative assertions
+        Assert.NotNull(Calculator);
+        Assert.NotNull(ScopedService);
+        Assert.NotNull(SingletonService);
+        Assert.NotNull(Options);
+
+        var initialScopedCounter = ScopedService.Counter;
+        var initialGlobalCounter = SingletonService.GlobalCounter;
+
         Action<ICalculator> calculatorAction = async calc =>
         {
             var result = await calc.AddAsync(10, 5);
@@ -131,23 +140,18 @@ public class AdvancedDependencyInjectionTests : TestBedWithDI<TestProjectFixture
         };
 
         // Act - Execute actions with services
-        Assert.NotNull(Calculator);
-        Assert.NotNull(ScopedService);
-        Assert.NotNull(SingletonService);
-        Assert.NotNull(Options);
-
-        calculatorAction(Calculator);
-        scopedAction(ScopedService);
-        singletonAction(SingletonService);
+        calculatorAction(Calculator!);
+        scopedAction(ScopedService!);
+        singletonAction(SingletonService!);
 
         // Execute actions with services obtained through service provider
         var anotherCalculator = GetService<ICalculator>();
         var sameScopedService = GetService<IScopedService>();
         var sameSingletonService = GetService<ISingletonService>();
 
-        calculatorAction(anotherCalculator);
-        scopedAction(sameScopedService);
-        singletonAction(sameSingletonService);
+        calculatorAction(anotherCalculator!);
+        scopedAction(sameScopedService!);
+        singletonAction(sameSingletonService!);
 
         // Assert - Actions should have been executed
         Assert.Equal(2, calculatorResults.Count);
@@ -160,12 +164,17 @@ public class AdvancedDependencyInjectionTests : TestBedWithDI<TestProjectFixture
 
         // Scoped service results should show incrementing counter for same instance
         Assert.All(scopedResults, result => Assert.Contains(ScopedService.InstanceId.ToString(), result));
-        Assert.Contains("Counter: 1", scopedResults[0]);
-        Assert.Contains("Counter: 2", scopedResults[1]);
+
+        // Use relative assertions - counter should increment from initial state
+        Assert.Contains($"Counter: {initialScopedCounter + 1}", scopedResults[0]);
+        Assert.Contains($"Counter: {initialScopedCounter + 2}", scopedResults[1]);
 
         // Singleton service results should show incrementing global counter
         Assert.All(singletonResults, result => Assert.Contains(SingletonService.InstanceId.ToString(), result));
-        // Global counter should have incremented from initial state
+
+        // Use relative assertions - global counter should increment by 2 from initial state
+        Assert.Contains($"Global: {initialGlobalCounter + 1}", singletonResults[0]);
+        Assert.Contains($"Global: {initialGlobalCounter + 2}", singletonResults[1]);
     }
 
     [Fact]
