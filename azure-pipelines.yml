@@ -41,6 +41,17 @@ steps:
     command: 'build'
     projects: '**/Xunit.Microsoft.DependencyInjection.csproj'
     arguments: '--configuration $(BuildConfiguration)'
+
+# Pack (with symbols & SourceLink) happens before publish to ensure packages are available as build artifacts
+- script: echo Packing library with symbols and SourceLink metadata
+  displayName: 'Pre-Pack Info'
+- task: DotNetCoreCLI@2
+  displayName: 'Packing (nupkg + snupkg)'
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
+    arguments: '--configuration $(BuildConfiguration) /p:ContinuousIntegrationBuild=true /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg --output $(Build.ArtifactStagingDirectory)/packages'
+    nobuild: true
 - task: DotNetCoreCLI@2
   displayName: 'Running tests in example folder'
   continueOnError: true
@@ -68,18 +79,19 @@ steps:
 
 - script: echo Started packing and pushing
 
-- task: NuGetCommand@2
-  displayName: 'Packing'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Packages'
   inputs:
-    command: 'pack'
-    packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
-    versioningScheme: 'byEnvVar'
-    versionEnvVar: 'Build.BuildNumber'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/packages'
+    ArtifactName: 'packages'
+    publishLocation: 'Container'
+
+# Push both nupkg & snupkg (exclude legacy symbols.nupkg)
 - task: NuGetCommand@2
   displayName: 'Pushing to nuget.org'
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/packages/**/*.nupkg;$(Build.ArtifactStagingDirectory)/packages/**/*.snupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NuGet'
     allowPackageConflicts: true
