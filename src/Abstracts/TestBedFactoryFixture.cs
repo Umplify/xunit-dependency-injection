@@ -36,9 +36,18 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 
 
 
+	/// <summary>
+	/// Creates an instance of <typeparamref name="T"/> using the best matching constructor.
+	/// </summary>
 	private T CreateInstance<T>(IServiceProvider serviceProvider, ITestOutputHelper testOutputHelper, params object[] additionalParameters)
 		where T : class => (T)CreateInstance(typeof(T), serviceProvider, testOutputHelper, additionalParameters);
 
+	/// <summary>
+	/// Core implementation for creating the test instance by iterating available constructors
+	/// (public &amp; non-public) and resolving parameters from provided instances, test output helper,
+	/// the fixture itself or the service provider (including keyed services when annotated).
+	/// </summary>
+	/// <exception cref="InvalidOperationException">Thrown when no suitable constructor can be satisfied.</exception>
 	private object CreateInstance(Type testType, IServiceProvider serviceProvider, ITestOutputHelper testOutputHelper, params object[] additionalParameters)
 	{
 		// Find the best constructor (including internal constructors)

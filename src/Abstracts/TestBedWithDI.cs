@@ -83,6 +83,9 @@ public abstract class TestBedWithDI<TFixture> : TestBed<TFixture>
 	/// </summary>
 	/// <typeparam name="T">The service type</typeparam>
 	/// <returns>The resolved service instance</returns>
+	/// <summary>
+	/// Convenience helper to resolve a service of type <typeparamref name="T"/>.
+	/// </summary>
 	protected T? GetService<T>() => _fixture.GetService<T>(_testOutputHelper);
 
 	/// <summary>
@@ -90,6 +93,9 @@ public abstract class TestBedWithDI<TFixture> : TestBed<TFixture>
 	/// </summary>
 	/// <typeparam name="T">The service type</typeparam>
 	/// <returns>The resolved service instance</returns>
+	/// <summary>
+	/// Convenience helper to resolve a scoped service of type <typeparamref name="T"/>.
+	/// </summary>
 	protected T? GetScopedService<T>() => _fixture.GetScopedService<T>(_testOutputHelper);
 
 	/// <summary>

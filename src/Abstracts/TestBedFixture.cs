@@ -2,6 +2,12 @@
 
 namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 
+/// <summary>
+/// Base fixture abstraction that configures dependency injection, configuration sources
+/// (JSON, user secrets, environment variables) and logging for test classes.
+/// Derived fixtures register services via <see cref="AddServices"/> and configuration files
+/// via <see cref="GetTestAppSettings"/>.
+/// </summary>
 public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 {
 	private readonly ServiceCollection _services;
@@ -10,6 +16,9 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	private bool _disposedAsync;
 	private bool _servicesAdded;
 
+	/// <summary>
+	/// Initializes the fixture, creating a service collection and configuration builder.
+	/// </summary>
 	protected TestBedFixture()
 	{
 		_services = new ServiceCollection();
@@ -19,9 +28,21 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		_servicesAdded = false;
 	}
 
+	/// <summary>
+	/// The combined configuration root composed of JSON files, user secrets (optional) and environment variables.
+	/// </summary>
 	public IConfigurationRoot? Configuration { get; private set; }
+
+	/// <summary>
+	/// The configuration builder used to assemble the <see cref="Configuration"/>.
+	/// </summary>
 	public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 
+	/// <summary>
+	/// Builds (lazily) and returns the root <see cref="ServiceProvider"/> including logging provider and options.
+	/// Subsequent calls return a cached provider.
+	/// </summary>
+	/// <param name="testOutputHelper">The test output helper used for logging.</param>
 	public ServiceProvider GetServiceProvider(ITestOutputHelper testOutputHelper)
 	{
 		if (_serviceProvider is not null)
@@ -38,6 +59,9 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		return _serviceProvider = _services.BuildServiceProvider();
 	}
 
+	/// <summary>
+	/// Resolves a scoped service of type <typeparamref name="T"/> using a new scope.
+	/// </summary>
 	public T? GetScopedService<T>(ITestOutputHelper testOutputHelper)
 	{
 		var serviceProvider = GetServiceProvider(testOutputHelper);
@@ -45,15 +69,27 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		return scope.ServiceProvider.GetService<T>();
 	}
 
+	/// <summary>
+	/// Creates and returns a new asynchronous service scope.
+	/// Caller is responsible for disposing the returned <see cref="AsyncServiceScope"/>.
+	/// </summary>
 	public AsyncServiceScope GetAsyncScope(ITestOutputHelper testOutputHelper)
 	{
 		var serviceProvider = GetServiceProvider(testOutputHelper);
 		return serviceProvider.CreateAsyncScope();
 	}
 
+	/// <summary>
+	/// Resolves a service of type <typeparamref name="T"/> from the root provider.
+	/// </summary>
 	public T? GetService<T>(ITestOutputHelper testOutputHelper)
 		=> GetServiceProvider(testOutputHelper).GetService<T>();
 
+	/// <summary>
+	/// Resolves a keyed service of type <typeparamref name="T"/>.
+	/// </summary>
+	/// <param name="key">The key identifying the registration.</param>
+	/// <param name="testOutputHelper">The test output helper used for logging and provider access.</param>
 	public T? GetKeyedService<T>([DisallowNull] string key, ITestOutputHelper testOutputHelper)
 		=> GetServiceProvider(testOutputHelper).GetKeyedService<T>(key);
 
@@ -64,6 +100,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	//     Dispose(disposing: false);
 	// }
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
@@ -71,6 +108,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		GC.SuppressFinalize(this);
 	}
 
+	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
 		if (!_disposedAsync)
@@ -82,13 +120,31 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		GC.SuppressFinalize(this);
 	}
 
+	/// <summary>
+	/// Adds services to the service collection. Called once before building the provider.
+	/// </summary>
 	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
+
+	/// <summary>
+	/// Returns the test application settings descriptors (JSON files) to include.
+	/// </summary>
 	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
+
+	/// <summary>
+	/// Override to asynchronously clean up resources created by the fixture.
+	/// </summary>
 	protected abstract ValueTask DisposeAsyncCore();
 
+	/// <summary>
+	/// Allows derived fixtures to customize logging by adding or decorating providers.
+	/// </summary>
 	protected virtual ILoggingBuilder AddLoggingProvider(ILoggingBuilder loggingBuilder, ILoggerProvider loggerProvider)
 		=> loggingBuilder.AddProvider(loggerProvider);
 
+	/// <summary>
+	/// Override to add user secrets to the provided configuration builder when needed.
+	/// Default implementation does nothing.
+	/// </summary>
 	protected virtual void AddUserSecrets(IConfigurationBuilder configurationBuilder) { }
 
 	private IConfigurationRoot? GetConfigurationRoot()
@@ -110,6 +166,9 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		return ConfigurationBuilder.Build();
 	}
 
+	/// <summary>
+	/// Disposes managed resources created by the fixture including the root service provider.
+	/// </summary>
 	protected virtual void Dispose(bool disposing)
 	{
 		if (!_disposedValue)
@@ -124,8 +183,6 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 				_services.Clear();
 			}
 
-			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-			// TODO: set large fields to null
 			_disposedValue = true;
 		}
 	}

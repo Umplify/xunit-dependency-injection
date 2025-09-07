@@ -1,10 +1,16 @@
 ﻿namespace Xunit.Microsoft.DependencyInjection.Logging;
 
+/// <summary>
+/// Logger provider that discards all log messages (Null Object pattern).
+/// Useful for suppressing output when no <see cref="ITestOutputHelper"/> is available.
+/// </summary>
 public sealed class NilLoggerProvider : ILoggerProvider
 {
+	/// <inheritdoc />
 	public ILogger CreateLogger(string categoryName)
 		=> new NilLogger();
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 	}
