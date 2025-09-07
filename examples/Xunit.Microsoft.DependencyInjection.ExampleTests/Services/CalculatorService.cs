@@ -1,8 +1,6 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Xunit.Microsoft.DependencyInjection.Attributes;
 
-namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
+namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Services;
 
 /// <summary>
 /// Example class that demonstrates constructor injection pattern
@@ -12,13 +10,13 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 public class CalculatorService
 {
     private readonly ICalculator _calculator;
-    private readonly Services.Options _options;
+    private readonly Options _options;
     private readonly ICarMaker _porsche;
     private readonly ICarMaker _toyota;
 
     internal CalculatorService(
         ICalculator calculator,
-        IOptions<Services.Options> options,
+        IOptions<Options> options,
         [FromKeyedService("Porsche")] ICarMaker porsche,
         [FromKeyedService("Toyota")] ICarMaker toyota)
     {

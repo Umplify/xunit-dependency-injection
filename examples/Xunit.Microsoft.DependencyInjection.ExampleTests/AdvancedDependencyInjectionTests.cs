@@ -7,7 +7,7 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 /// <summary>
 /// Example tests demonstrating advanced dependency injection patterns including IOptions, Func&lt;T&gt;, and Action&lt;T&gt;
 /// </summary>
-public class AdvancedDependencyInjectionTests : TestBedWithDI<TestProjectFixture>
+public class AdvancedDependencyInjectionTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture) : TestBedWithDI<TestProjectFixture>(testOutputHelper, fixture)
 {
     [Inject]
     private IOptions<Options>? Options { get; set; }
@@ -26,11 +26,6 @@ public class AdvancedDependencyInjectionTests : TestBedWithDI<TestProjectFixture
 
     [Inject]
     private ISingletonService? SingletonService { get; set; }
-
-    public AdvancedDependencyInjectionTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture)
-        : base(testOutputHelper, fixture)
-    {
-    }
 
     [Fact]
     public void TestIOptionsPatterns()

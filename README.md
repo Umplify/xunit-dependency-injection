@@ -79,7 +79,7 @@ T? GetKeyedService<T>([DisallowNull] string key, ITestOutputHelper testOutputHel
 
 ## Constructor Dependency Injection
 
-**New in this version**: The library now supports constructor-style dependency injection while maintaining full backward compatibility with the existing fixture-based approach.
+**New in this version (ver 9.2.0 and beyond)**: The library now supports constructor-style dependency injection while maintaining full backward compatibility with the existing fixture-based approach.
 
 ### Property Injection with TestBedWithDI (Recommended)
 

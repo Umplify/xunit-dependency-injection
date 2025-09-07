@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace Xunit.Microsoft.DependencyInjection.Abstracts;
@@ -51,7 +50,7 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 		{
 			var parameters = constructor.GetParameters();
 			var args = new List<object?>();
-			bool canResolveAll = true;
+			var canResolveAll = true;
 
 			foreach (var parameter in parameters)
 			{
@@ -102,9 +101,8 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 							// Use the fixture's existing GetKeyedService method instead of reflection
 							try
 							{
-								var getKeyedServiceMethod = GetType().BaseType?.GetMethod("GetKeyedService",
-									new[] { typeof(string), typeof(ITestOutputHelper) })?.MakeGenericMethod(parameter.ParameterType);
-								arg = getKeyedServiceMethod?.Invoke(this, new object[] { key, testOutputHelper });
+								var getKeyedServiceMethod = GetType().BaseType?.GetMethod("GetKeyedService",[typeof(string), typeof(ITestOutputHelper)])?.MakeGenericMethod(parameter.ParameterType);
+								arg = getKeyedServiceMethod?.Invoke(this, [key, testOutputHelper]);
 							}
 							catch
 							{
@@ -141,7 +139,7 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 				try
 				{
 					// Use constructor.Invoke for better control over internal constructors
-					return constructor.Invoke(args.ToArray())!;
+					return constructor.Invoke([.. args])!;
 				}
 				catch
 				{

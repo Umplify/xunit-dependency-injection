@@ -8,7 +8,7 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 /// Example tests demonstrating transient service injection using property injection pattern
 /// Transient services create a new instance for each injection point
 /// </summary>
-public class TransientServiceTests : TestBedWithDI<TestProjectFixture>
+public class TransientServiceTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture) : TestBedWithDI<TestProjectFixture>(testOutputHelper, fixture)
 {
     [Inject]
     private ITransientService? TransientService1 { get; set; }
@@ -21,11 +21,6 @@ public class TransientServiceTests : TestBedWithDI<TestProjectFixture>
 
     [Inject]
     private IOptions<Options>? Options { get; set; }
-
-    public TransientServiceTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture)
-        : base(testOutputHelper, fixture)
-    {
-    }
 
     [Fact]
     public async Task TestTransientServiceCreatesDifferentInstances()
@@ -143,7 +138,7 @@ public class TransientServiceTests : TestBedWithDI<TestProjectFixture>
         // Assert - Should have worked with 3 different instances
         Assert.Equal(3, results.Count);
         Assert.Equal(3, instanceIds.Count);
-        Assert.True(instanceIds.Distinct().Count() == 3); // All different
+        Assert.Equal(3, instanceIds.Distinct().Count()); // All different
 
         // Verify results contain expected patterns
         Assert.All(results, result =>
