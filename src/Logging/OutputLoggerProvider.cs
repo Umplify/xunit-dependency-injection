@@ -8,8 +8,14 @@ public class OutputLoggerProvider(ITestOutputHelper testOutputHelper) : ILoggerP
 {
 	private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
+	/// <summary>
+	/// Creates a new <see cref="OutputLogger"/> for the specified category.
+	/// </summary>
 	public ILogger CreateLogger(string categoryName)
 		=> new OutputLogger(categoryName, _testOutputHelper);
 
+	/// <summary>
+	/// Disposes the provider (no-op other than suppressing finalization).
+	/// </summary>
 	public void Dispose() => GC.SuppressFinalize(this);
 }

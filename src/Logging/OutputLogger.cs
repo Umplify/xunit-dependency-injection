@@ -16,9 +16,15 @@ public class OutputLogger(string categoryName, ITestOutputHelper testOutputHelpe
 	{
 	}
 
+	/// <summary>
+	/// Begins a logical operation scope. Returns a disposable that performs no action.
+	/// </summary>
 	public IDisposable? BeginScope<TState>(TState state) where TState : notnull
 		=> new NoOpDisposable();
 
+	/// <summary>
+	/// Always returns true; all log levels are enabled for forwarding to test output.
+	/// </summary>
 	public bool IsEnabled(LogLevel logLevel)
 		=> true;
 

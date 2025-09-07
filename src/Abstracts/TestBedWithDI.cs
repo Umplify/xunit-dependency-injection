@@ -10,6 +10,11 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 public abstract class TestBedWithDI<TFixture> : TestBed<TFixture>
 	where TFixture : TestBedFixture
 {
+	/// <summary>
+	/// Initializes the test bed and performs property injection for members marked with <see cref="InjectAttribute"/>.
+	/// </summary>
+	/// <param name="testOutputHelper">The xUnit test output helper.</param>
+	/// <param name="fixture">The fixture instance supplying services.</param>
 	protected TestBedWithDI(ITestOutputHelper testOutputHelper, TFixture fixture)
 		: base(testOutputHelper, fixture) =>
 		// Resolve and inject dependencies for derived classes
