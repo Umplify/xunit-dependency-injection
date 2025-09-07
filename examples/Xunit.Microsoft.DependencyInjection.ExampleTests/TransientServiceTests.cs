@@ -116,7 +116,7 @@ public class TransientServiceTests : TestBedWithDI<TestProjectFixture>
     }
 
     [Fact]
-    public async Task TestTransientServiceWithActionDelegate()
+    public void TestTransientServiceWithActionDelegate()
     {
         // Arrange - Create action delegates to work with transient services
         var results = new List<string>();
@@ -137,7 +137,7 @@ public class TransientServiceTests : TestBedWithDI<TestProjectFixture>
         serviceAction(TransientService2);
 
         // Get a new transient and execute action
-        var newTransient = GetService<ITransientService>();
+        var newTransient = GetService<ITransientService>()!;
         serviceAction(newTransient);
 
         // Assert - Should have worked with 3 different instances

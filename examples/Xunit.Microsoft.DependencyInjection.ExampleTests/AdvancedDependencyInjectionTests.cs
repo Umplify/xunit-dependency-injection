@@ -105,7 +105,7 @@ public class AdvancedDependencyInjectionTests : TestBedWithDI<TestProjectFixture
     }
 
     [Fact]
-    public async Task TestActionTPatternWithServices()
+    public void TestActionTPatternWithServices()
     {
         // Arrange - Create actions to work with different service types
         var calculatorResults = new List<int>();
