@@ -4,6 +4,9 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    
+    <!-- Version configuration - can be overridden by build system -->
+    <Version Condition="'$(Version)' == ''">9.2.0</Version>
 	
     <!-- NuGet Package Properties -->
     <PackageId>Xunit.Microsoft.DependencyInjection</PackageId>
