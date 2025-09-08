@@ -51,7 +51,7 @@ steps:
     command: 'pack'
     packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
     arguments: '--configuration $(BuildConfiguration) /p:ContinuousIntegrationBuild=true /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:PackageVersion=$(Major).$(Minor).$(Revision) --output $(Build.ArtifactStagingDirectory)/packages'
-    nobuild: true
+    nobuild: false
 - task: DotNetCoreCLI@2
   displayName: 'Running tests in example folder'
   continueOnError: true
@@ -79,8 +79,21 @@ steps:
 
 - script: echo Started packing and pushing
 
+- script: |
+    if [ -d "$(Build.ArtifactStagingDirectory)/packages" ]; then
+      echo "Packages directory exists, found the following files:"
+      ls -la "$(Build.ArtifactStagingDirectory)/packages/"
+    else
+      echo "Packages directory does not exist at $(Build.ArtifactStagingDirectory)/packages"
+      echo "Contents of staging directory:"
+      ls -la "$(Build.ArtifactStagingDirectory)/"
+      exit 1
+    fi
+  displayName: 'Verify Packages Directory'
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Packages'
+  condition: and(succeeded(), ne(variables['Agent.JobStatus'], 'Failed'))
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/packages'
     ArtifactName: 'packages'
