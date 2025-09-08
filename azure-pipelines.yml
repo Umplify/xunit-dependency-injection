@@ -43,14 +43,14 @@ steps:
     arguments: '--configuration $(BuildConfiguration)'
 
 # Pack (with symbols & SourceLink) happens before publish to ensure packages are available as build artifacts
-- script: echo Packing library with symbols and SourceLink metadata
+- script: echo Packing library with symbols and SourceLink metadata - Version $(Major).$(Minor).$(Revision)
   displayName: 'Pre-Pack Info'
 - task: DotNetCoreCLI@2
   displayName: 'Packing (nupkg + snupkg)'
   inputs:
     command: 'pack'
     packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
-    arguments: '--configuration $(BuildConfiguration) /p:ContinuousIntegrationBuild=true /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg --output $(Build.ArtifactStagingDirectory)/packages'
+    arguments: '--configuration $(BuildConfiguration) /p:ContinuousIntegrationBuild=true /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:PackageVersion=$(Major).$(Minor).$(Revision) --output $(Build.ArtifactStagingDirectory)/packages'
     nobuild: true
 - task: DotNetCoreCLI@2
   displayName: 'Running tests in example folder'

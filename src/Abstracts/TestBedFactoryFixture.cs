@@ -110,7 +110,7 @@ public abstract class TestBedFactoryFixture : TestBedFixture
 							// Use the fixture's existing GetKeyedService method instead of reflection
 							try
 							{
-								var getKeyedServiceMethod = GetType().BaseType?.GetMethod("GetKeyedService",[typeof(string), typeof(ITestOutputHelper)])?.MakeGenericMethod(parameter.ParameterType);
+								var getKeyedServiceMethod = GetType().BaseType?.GetMethod("GetKeyedService", [typeof(string), typeof(ITestOutputHelper)])?.MakeGenericMethod(parameter.ParameterType);
 								arg = getKeyedServiceMethod?.Invoke(this, [key, testOutputHelper]);
 							}
 							catch
