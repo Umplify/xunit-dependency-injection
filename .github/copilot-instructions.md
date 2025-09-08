@@ -34,7 +34,7 @@ Always reference these instructions first and fallback to search or bash command
   cd ../examples/Xunit.Microsoft.DependencyInjection.ExampleTests
   dotnet test --configuration Release
   ```
-  -- takes ~10.8 seconds with 9 tests passing. NEVER CANCEL. Set timeout to 60+ seconds.
+  -- takes ~10.8 seconds with 43 tests passing. NEVER CANCEL. Set timeout to 60+ seconds.
 - **Package library**: `dotnet pack --configuration Release` -- takes ~1.9 seconds. NEVER CANCEL. Set timeout to 30+ seconds.
 
 ### Code Quality and Formatting
@@ -49,11 +49,59 @@ Always reference these instructions first and fallback to search or bash command
 - The library targets `net9.0` framework exclusively
 - Use Visual Studio Code tasks defined in `.vscode/tasks.json` for build, publish, and watch operations
 
+## Understanding Test Patterns
+
+The library supports multiple dependency injection approaches:
+
+### 1. Traditional Fixture-Based (Fully Supported)
+```csharp
+public class MyTests : TestBed<TestProjectFixture>
+{
+    [Fact]
+    public async Task TestCalculation()
+    {
+        var calculator = _fixture.GetService<ICalculator>(_testOutputHelper);
+        var result = await calculator.AddAsync(1, 2);
+        Assert.Equal(3, result);
+    }
+}
+```
+
+### 2. Property Injection (Recommended - New in 9.2.0+)
+```csharp
+public class MyTests : TestBedWithDI<TestProjectFixture>
+{
+    [Inject] private ICalculator Calculator { get; set; } = null!;
+    [Inject("Porsche")] private ICarMaker PorscheMaker { get; set; } = null!;
+    
+    [Fact]
+    public async Task TestCalculation()
+    {
+        var result = await Calculator.AddAsync(1, 2);
+        Assert.Equal(3, result);
+    }
+}
+```
+
+### 3. Factory Pattern (Experimental)
+```csharp
+public class MyTests : TestBed<FactoryTestProjectFixture>
+{
+    [Fact] 
+    public async Task TestConstructorInjection()
+    {
+        var service = _fixture.CreateTestInstance<SimpleService>(_testOutputHelper);
+        var result = await service.CalculateAsync(10, 5);
+        Assert.True(result > 0);
+    }
+}
+```
+
 ## Validation Scenarios
 
 After making any changes to the library code:
 1. **Build validation**: Run `dotnet build --configuration Release` and ensure it completes successfully
-2. **Test validation**: Run example tests with `dotnet test --configuration Release` and verify all 9 tests pass
+2. **Test validation**: Run example tests with `dotnet test --configuration Release` and verify all 43 tests pass
 3. **Format validation**: Run `dotnet format` to ensure code follows project standards
 4. **Package validation**: Run `dotnet pack --configuration Release` to ensure the library can be packaged
 
@@ -64,6 +112,25 @@ The example tests demonstrate complete usage patterns:
 - **Keyed services**: Tests validate keyed service injection (new in .NET 9.0)
 - **Configuration binding**: Tests demonstrate configuration file and user secrets integration
 - **Test ordering**: Tests show the test ordering feature with `TestOrder` attributes
+
+#### Testing Specific Features
+Run individual test scenarios to validate changes:
+```bash
+# Test property injection (new dependency injection pattern)
+dotnet test --filter "TestCalculatorThroughPropertyInjection" --configuration Release
+
+# Test keyed services (Porsche/Toyota car makers)  
+dotnet test --filter "GetKeyedService" --configuration Release
+
+# Test factory pattern (constructor injection)
+dotnet test --filter "TestConstructorInjectionViaFactory" --configuration Release
+
+# Test configuration and user secrets
+dotnet test --filter "TestSecretValues" --configuration Release
+
+# List all available tests
+dotnet test --list-tests --configuration Release
+```
 
 ## Project Structure
 
@@ -99,24 +166,34 @@ The example tests demonstrate complete usage patterns:
 - **Format Issues**: Run `dotnet format` to auto-fix most style problems
 - **Missing Dependencies**: Run `dotnet restore` to restore NuGet packages
 
+#### Common Validation Failures
+- **Build succeeds but tests fail**: Check if you're in the correct directory (`examples/Xunit.Microsoft.DependencyInjection.ExampleTests`)
+- **"No tests found" error**: Verify test filter syntax with `dotnet test --list-tests` first
+- **Timeout during restore/build**: DO NOT CANCEL - operations take 8-15 seconds normally, set 60+ second timeouts
+- **SourceLink warnings**: These are normal during format validation and can be ignored
+- **Test count mismatch**: Current test suite has 43 tests; if you see different counts, investigate test changes
+
 ### Working with Examples
 The examples project is a fully functional test suite that demonstrates:
-- Service registration and dependency injection patterns
-- Configuration file usage with `appsettings.json`
-- User secrets integration for sensitive data
-- Keyed services (Porsche/Toyota car maker examples)
-- Test ordering with custom attributes
-- Both synchronous and asynchronous test patterns
+- **Traditional fixture-based approach**: See `CalculatorTests.cs` using `TestBed<TFixture>` and `_fixture.GetService<T>(_testOutputHelper)`
+- **Property injection approach**: See `PropertyInjectionTests.cs` using `TestBedWithDI<TFixture>` with `[Inject]` attributes
+- **Factory constructor injection**: See `FactoryConstructorInjectionTests.cs` for experimental true constructor injection
+- **Service registration patterns**: Multiple service lifetimes (transient, scoped, singleton)
+- **Configuration file usage**: `appsettings.json` integration
+- **User secrets integration**: Sensitive data handling for development
+- **Keyed services**: Porsche/Toyota car maker examples demonstrating .NET 9.0 keyed services
+- **Test ordering**: Custom attributes for controlling test execution order
+- **Advanced patterns**: `Func<T>`, `Action<T>`, and `IOptions<T>` injection patterns
 
 Always use the examples to validate that your changes don't break real-world usage scenarios.
 
 ## Build Times and Performance Expectations
 - **Package restore**: ~1-8 seconds (varies with cache state)
 - **Build (Release)**: ~4-6 seconds
-- **Test execution**: ~9-11 seconds (9 tests pass)
+- **Test execution**: ~9-11 seconds (43 tests pass)
 - **Code formatting**: ~7-10 seconds
 - **Package creation**: ~1-2 seconds
-- **Complete workflow**: ~20-25 seconds total
+- **Complete workflow**: ~25-35 seconds total
 
 **CRITICAL**: NEVER CANCEL builds or tests. These times are normal. Set timeouts to 2-5 minutes to catch actual hanging processes, but actual operations complete much faster.
 
