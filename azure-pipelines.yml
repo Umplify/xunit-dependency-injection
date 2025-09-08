@@ -50,7 +50,8 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: '**/Xunit.Microsoft.DependencyInjection.csproj'
-    arguments: '--configuration $(BuildConfiguration) /p:ContinuousIntegrationBuild=true /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:PackageVersion=$(Major).$(Minor).$(Revision) --output $(Build.ArtifactStagingDirectory)/packages'
+    arguments: '--configuration $(BuildConfiguration) /p:ContinuousIntegrationBuild=true /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:PackageVersion=$(Major).$(Minor).$(Revision)'
+    outputDir: '$(Build.ArtifactStagingDirectory)/packages'
     nobuild: false
 - task: DotNetCoreCLI@2
   displayName: 'Running tests in example folder'
