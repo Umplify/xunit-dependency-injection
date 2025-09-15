@@ -100,12 +100,12 @@ steps:
     ArtifactName: 'packages'
     publishLocation: 'Container'
 
-# Push both nupkg & snupkg (exclude legacy symbols.nupkg)
+# Push nupkg files (snupkg symbols packages are automatically handled by NuGet)
 - task: NuGetCommand@2
   displayName: 'Pushing to nuget.org'
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/packages/**/*.nupkg;$(Build.ArtifactStagingDirectory)/packages/**/*.snupkg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/packages/**/*.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NuGet'
     allowPackageConflicts: true
