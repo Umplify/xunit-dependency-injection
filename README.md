@@ -32,7 +32,7 @@ Also please check the [migration guide](https://xunit.net/docs/getting-started/v
 ### Example on how to reference xunit.v3
 
 ```xml
-<PackageReference Include="xunit.v3" Version="2.0.3" />
+<PackageReference Include="xunit.v3" Version="3.1.0" />
 ```
 
 ## Getting started
