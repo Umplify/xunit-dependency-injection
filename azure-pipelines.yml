@@ -1,7 +1,7 @@
 variables:
   Major: 9
   Minor: 2
-  Revision: 0
+  Revision: 1
   BuildConfiguration: Release
 
 name: $(Major).$(Minor).$(Revision)
