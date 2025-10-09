@@ -25,7 +25,7 @@ steps:
   displayName: 'Use .NET 9.0 sdk'
   inputs:
     packageType: sdk
-    version: 9.0.304
+    version: 9.0.305
     installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2

@@ -6,10 +6,21 @@
 
 Xunit does not support any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
-This library brings Microsoft's dependency injection container to Xunit by leveraging Xunit's fixture pattern and now supports **two approaches** for dependency injection:
+This library brings **Microsoft's dependency injection container** to Xunit by leveraging Xunit's fixture pattern and provides **three approaches** for dependency injection in your tests:
 
-1. **Traditional Fixture-Based Approach** - Access services via `_fixture.GetService<T>(_testOutputHelper)` (fully supported, backward compatible)
-2. **Constructor Dependency Injection** - Inject services directly into test class properties using the `[Inject]` attribute (new feature)
+1. **🆕 Property Injection (Recommended)** - Clean, declarative syntax using `[Inject]` attributes on properties
+2. **🔧 Traditional Fixture-Based** - Access services via `_fixture.GetService<T>(_testOutputHelper)` (fully backward compatible)
+3. **⚡ Factory Pattern** - True constructor injection into service classes (experimental)
+
+## ✨ Key Features
+
+- 🎯 **Multiple injection patterns** - Choose the approach that fits your team's style
+- 🔑 **Keyed services support** - Full .NET 9.0 keyed services integration
+- ⚙️ **Configuration integration** - Support for `appsettings.json`, user secrets, and environment variables
+- 🧪 **Service lifetime management** - Transient, Scoped, and Singleton services work as expected
+- 📦 **Microsoft.Extensions ecosystem** - Built on the same DI container used by ASP.NET Core
+- 🔄 **Gradual migration** - Adopt new features incrementally without breaking existing tests
+- 🏗️ **Production-ready** - Used by [Digital Silo](https://digitalsilo.io/) and other production applications
 
 ## Important: xUnit versions
 
@@ -26,12 +37,118 @@ Also please check the [migration guide](https://xunit.net/docs/getting-started/v
 
 ## Getting started
 
+### Prerequisites
+
+Before you begin, ensure you have:
+- **.NET 9.0 SDK** installed on your development machine
+- **Visual Studio 2022** or **Visual Studio Code** with C# extension
+- Basic understanding of dependency injection concepts
+- Familiarity with xUnit testing framework
+
 ### Nuget package
 
-First add the following [nuget package](https://www.nuget.org/packages/Xunit.Microsoft.DependencyInjection/) to your Xunit project:
+First add the following [nuget package](https://www.nuget.org/packages/Xunit.Microsoft.DependencyInjection/) to your Xunit test project:
 
+#### Package Manager Console
 ```ps
 Install-Package Xunit.Microsoft.DependencyInjection
+```
+
+#### .NET CLI
+```bash
+dotnet add package Xunit.Microsoft.DependencyInjection
+```
+
+#### PackageReference (in your .csproj file)
+```xml
+<PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="9.2.0" />
+```
+
+### Required Dependencies
+
+Your test project also needs the following Microsoft.Extensions packages for full functionality:
+
+```xml
+<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
+```
+
+### Quick Start Example
+
+Here's a minimal example to get you started quickly:
+
+#### 1. Create a Test Fixture
+
+```csharp
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit.Microsoft.DependencyInjection.Abstracts;
+
+public class MyTestFixture : TestBedFixture
+{
+    protected override void AddServices(IServiceCollection services, IConfiguration? configuration)
+        => services
+            .AddTransient<IMyService, MyService>()
+            .AddScoped<IMyScopedService, MyScopedService>();
+
+    protected override ValueTask DisposeAsyncCore() => new();
+
+    protected override IEnumerable<TestAppSettings> GetTestAppSettings()
+    {
+        yield return new() { Filename = "appsettings.json", IsOptional = true };
+    }
+}
+```
+
+#### 2. Create Your Test Class (Property Injection - Recommended)
+
+```csharp
+using Xunit.Microsoft.DependencyInjection.Abstracts;
+using Xunit.Microsoft.DependencyInjection.Attributes;
+
+[CollectionDefinition("Dependency Injection")]
+public class MyTests : TestBedWithDI<MyTestFixture>
+{
+    [Inject] private IMyService MyService { get; set; } = null!;
+    [Inject] private IMyScopedService MyScopedService { get; set; } = null!;
+
+    public MyTests(ITestOutputHelper testOutputHelper, MyTestFixture fixture)
+        : base(testOutputHelper, fixture) { }
+
+    [Fact]
+    public async Task TestMyService()
+    {
+        // Your services are automatically injected and ready to use
+        var result = await MyService.DoSomethingAsync();
+        Assert.NotNull(result);
+    }
+}
+```
+
+#### 3. Alternative: Traditional Fixture Approach
+
+```csharp
+[CollectionDefinition("Dependency Injection")]
+public class MyTraditionalTests : TestBed<MyTestFixture>
+{
+    public MyTraditionalTests(ITestOutputHelper testOutputHelper, MyTestFixture fixture)
+        : base(testOutputHelper, fixture) { }
+
+    [Fact]
+    public async Task TestMyService()
+    {
+        // Get services from the fixture
+        var myService = _fixture.GetService<IMyService>(_testOutputHelper)!;
+        var result = await myService.DoSomethingAsync();
+        Assert.NotNull(result);
+    }
+}
 ```
 
 ### Setup your fixture
@@ -207,21 +324,75 @@ public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 
 ## Examples
 
-* Please [follow this link](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests) to view examples utilizing both the traditional fixture-based approach and the new constructor dependency injection features.
+📖 **[Complete Examples Documentation](Examples.md)** - Comprehensive guide with working code examples
+
+* **[Live Examples](https://github.com/Umplify/xunit-dependency-injection/tree/main/examples/Xunit.Microsoft.DependencyInjection.ExampleTests)** - View the complete working examples that demonstrate all features
 * **Traditional approach**: See examples using `TestBed<TFixture>` and `_fixture.GetService<T>(_testOutputHelper)`  
-* **Constructor injection**: See `PropertyInjectionTests.cs` for examples using `TestBedWithDI<TFixture>` with `[Inject]` attributes
+* **Property injection**: See `PropertyInjectionTests.cs` for examples using `TestBedWithDI<TFixture>` with `[Inject]` attributes
 * **Factory pattern**: See `FactoryConstructorInjectionTests.cs` for experimental constructor injection scenarios
-* [Digital Silo](https://digitalsilo.io/)'s unit tests and integration tests are using this library.
+* **Keyed services**: See `KeyedServicesTests.cs` for .NET 9.0 keyed service examples
+* **Configuration**: See `UserSecretTests.cs` for configuration and user secrets integration
+* **Advanced patterns**: See `AdvancedDependencyInjectionTests.cs` for `IOptions<T>`, `Func<T>`, and `Action<T>` examples
+
+🏢 [Digital Silo](https://digitalsilo.io/)'s unit tests and integration tests are using this library in production.
 
 ### One more thing
 
-Do not forget to include the following nuget packages to your Xunit project:
+Do not forget to include the following nuget packages to your Xunit project. The library requires these Microsoft.Extensions packages for full functionality:
 
-* Microsoft.Extensions.DependencyInjection
-* Microsoft.Extensions.Configuration
-* Microsoft.Extensions.Options
-* Microsoft.Extensions.Configuration.Binder
-* Microsoft.Extensions.Configuration.FileExtensions
-* Microsoft.Extensions.Configuration.Json
-* Microsoft.Extensions.Logging
-* Microsoft.Extensions.Configuration.EnvironmentVariables
+```xml
+<!-- Core dependency injection -->
+<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
+
+<!-- Configuration support -->
+<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
+<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
+
+<!-- Logging support -->
+<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+
+<!-- Environment variables configuration -->
+<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
+
+<!-- User secrets support (for development) -->
+<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.9" />
+```
+
+Or install them via Package Manager Console:
+```ps
+Install-Package Microsoft.Extensions.DependencyInjection
+Install-Package Microsoft.Extensions.Configuration
+Install-Package Microsoft.Extensions.Options
+Install-Package Microsoft.Extensions.Configuration.Binder
+Install-Package Microsoft.Extensions.Configuration.FileExtensions
+Install-Package Microsoft.Extensions.Configuration.Json
+Install-Package Microsoft.Extensions.Logging
+Install-Package Microsoft.Extensions.Configuration.EnvironmentVariables
+```
+
+### Troubleshooting Common Issues
+
+#### Missing Dependencies
+If you encounter build errors, ensure all required Microsoft.Extensions packages are installed with compatible versions.
+
+#### Configuration File Issues
+- Ensure `appsettings.json` is set to "Copy to Output Directory: Copy if newer" in file properties
+- Configuration files must be valid JSON format
+
+#### User Secrets Issues
+- Initialize user secrets: `dotnet user-secrets init`
+- Set secrets: `dotnet user-secrets set "SecretKey" "SecretValue"`
+
+#### xUnit Version Compatibility
+- For **xUnit** packages use Xunit.Microsoft.DependencyInjection versions **up to** 9.0.5
+- For **xUnit.v3** packages use Xunit.Microsoft.DependencyInjection versions **from** 9.1.0
+
+### Need Help?
+
+- 📖 **[Complete Examples Documentation](Examples.md)** - Step-by-step examples for all features
+- 🐛 **[GitHub Issues](https://github.com/Umplify/xunit-dependency-injection/issues)** - Report bugs or request features
+- 📦 **[NuGet Package](https://www.nuget.org/packages/Xunit.Microsoft.DependencyInjection/)** - Latest releases and changelog
+- 📋 **[Migration Guide](https://xunit.net/docs/getting-started/v3/migration)** - For xUnit.v3 migration
