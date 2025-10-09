@@ -112,7 +112,7 @@ public class MyTestFixture : TestBedFixture
 using Xunit.Microsoft.DependencyInjection.Abstracts;
 using Xunit.Microsoft.DependencyInjection.Attributes;
 
-[CollectionDefinition("Dependency Injection")]
+[Collection("Dependency Injection")]
 public class MyTests : TestBedWithDI<MyTestFixture>
 {
     [Inject] private IMyService MyService { get; set; } = null!;
