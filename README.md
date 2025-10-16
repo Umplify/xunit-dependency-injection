@@ -64,20 +64,7 @@ dotnet add package Xunit.Microsoft.DependencyInjection
 <PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="9.2.0" />
 ```
 
-### Required Dependencies
-
-Your test project also needs the following Microsoft.Extensions packages for full functionality:
-
-```xml
-<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
-```
+**✨ That's it!** All required Microsoft.Extensions dependencies are now automatically included with the package, so you don't need to manually add them to your test project.
 
 ### Quick Start Example
 
