@@ -323,43 +323,6 @@ public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 
 🏢 [Digital Silo](https://digitalsilo.io/)'s unit tests and integration tests are using this library in production.
 
-### One more thing
-
-Do not forget to include the following nuget packages to your Xunit project. The library requires these Microsoft.Extensions packages for full functionality:
-
-```xml
-<!-- Core dependency injection -->
-<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
-
-<!-- Configuration support -->
-<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
-<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
-
-<!-- Logging support -->
-<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
-
-<!-- Environment variables configuration -->
-<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
-
-<!-- User secrets support (for development) -->
-<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.9" />
-```
-
-Or install them via Package Manager Console:
-```ps
-Install-Package Microsoft.Extensions.DependencyInjection
-Install-Package Microsoft.Extensions.Configuration
-Install-Package Microsoft.Extensions.Options
-Install-Package Microsoft.Extensions.Configuration.Binder
-Install-Package Microsoft.Extensions.Configuration.FileExtensions
-Install-Package Microsoft.Extensions.Configuration.Json
-Install-Package Microsoft.Extensions.Logging
-Install-Package Microsoft.Extensions.Configuration.EnvironmentVariables
-```
-
 ### Troubleshooting Common Issues
 
 #### Missing Dependencies
