@@ -177,12 +177,12 @@ public class AdvancedDependencyInjectionTests(ITestOutputHelper testOutputHelper
     {
         // Arrange - Create a complex function that uses multiple services
         Func<IScopedService, ISingletonService, ICalculator, string> complexOperation =
-            (scoped, singleton, calc) =>
+            (scopedSvc, singletonSvc, calc) =>
             {
-                scoped.Increment();
-                singleton.IncrementGlobal();
-                return $"Scoped: {scoped.InstanceId}, Singleton: {singleton.InstanceId}, " +
-                       $"ScopedCounter: {scoped.Counter}, GlobalCounter: {singleton.GlobalCounter}";
+                scopedSvc.Increment();
+                singletonSvc.IncrementGlobal();
+                return $"Scoped: {scopedSvc.InstanceId}, Singleton: {singletonSvc.InstanceId}, " +
+                       $"ScopedCounter: {scopedSvc.Counter}, GlobalCounter: {singletonSvc.GlobalCounter}";
             };
 
         // Act - Execute complex operation

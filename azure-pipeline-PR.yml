@@ -1,5 +1,5 @@
 variables:
-  Major: 9
+  Major: 10
   Minor: 0
   Patch: 0
   BuildConfiguration: Release
@@ -14,10 +14,10 @@ pool:
 steps:
 - script: echo Build Number $(name)
 - task: UseDotNet@2
-  displayName: 'Use .NET 9.0 sdk'
+  displayName: 'Use .NET 10.0 sdk'
   inputs:
     packageType: sdk
-    version: 9.0.306
+    version: 10.0.100
     installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2

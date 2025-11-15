@@ -2,7 +2,7 @@
 ![Nuget](https://img.shields.io/nuget/v/Xunit.Microsoft.DependencyInjection)
 ![Nuget](https://img.shields.io/nuget/dt/Xunit.Microsoft.DependencyInjection)
 
-# Xunit Dependency Injection framework - .NET 9.0
+# Xunit Dependency Injection framework - .NET 10.0
 
 Xunit does not support any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
@@ -15,7 +15,7 @@ This library brings **Microsoft's dependency injection container** to Xunit by l
 ## ✨ Key Features
 
 - 🎯 **Multiple injection patterns** - Choose the approach that fits your team's style
-- 🔑 **Keyed services support** - Full .NET 9.0 keyed services integration
+- 🔑 **Keyed services support** - Full .NET 10.0 keyed services integration
 - ⚙️ **Configuration integration** - Support for `appsettings.json`, user secrets, and environment variables
 - 🧪 **Service lifetime management** - Transient, Scoped, and Singleton services work as expected
 - 📦 **Microsoft.Extensions ecosystem** - Built on the same DI container used by ASP.NET Core
@@ -26,13 +26,14 @@ This library brings **Microsoft's dependency injection container** to Xunit by l
 
 * For **xUnit** packages use Xunit.Microsoft.DependencyInjection versions **up to** 9.0.5
 * For **xUnit.v3** packages use Xunit.Microsoft.DependencyInjection versions **from** 9.1.0
+* For **.NET 10.0** use Xunit.Microsoft.DependencyInjection version **10.0.0 or later**
 
 Also please check the [migration guide](https://xunit.net/docs/getting-started/v3/migration) from xUnit for test authors.
 
 ### Example on how to reference xunit.v3
 
 ```xml
-<PackageReference Include="xunit.v3" Version="3.1.0" />
+<PackageReference Include="xunit.v3" Version="3.2.0" />
 ```
 
 ## Getting started
@@ -40,7 +41,7 @@ Also please check the [migration guide](https://xunit.net/docs/getting-started/v
 ### Prerequisites
 
 Before you begin, ensure you have:
-- **.NET 9.0 SDK** installed on your development machine
+- **.NET 10.0 SDK** installed on your development machine
 - **Visual Studio 2022** or **Visual Studio Code** with C# extension
 - Basic understanding of dependency injection concepts
 - Familiarity with xUnit testing framework
