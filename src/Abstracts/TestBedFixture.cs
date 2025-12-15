@@ -23,8 +23,6 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	{
 		_services = new ServiceCollection();
 		ConfigurationBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
-		AddUserSecrets(ConfigurationBuilder);
-		Configuration = GetConfigurationRoot();
 		_servicesAdded = false;
 	}
 
@@ -51,6 +49,8 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		}
 		if (!_servicesAdded)
 		{
+			AddUserSecrets(ConfigurationBuilder);
+			Configuration = GetConfigurationRoot();
 			AddServices(_services, Configuration);
 			_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
 			_services.AddOptions();
