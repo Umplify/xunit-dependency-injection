@@ -1,11 +1,12 @@
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 
-public class ConfigurationTests : TestBed<TestProjectFixture>
+public class ConfigurationTests : TestBed<TestProjectFixtureWithoutAppsettings>
 {
     private const string Key = "CONFIG_KEY";
     private const string Value = "Value";
     
-    public ConfigurationTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture) : base(testOutputHelper, fixture)
+    public ConfigurationTests(ITestOutputHelper testOutputHelper, TestProjectFixtureWithoutAppsettings fixture) 
+        : base(testOutputHelper, fixture)
     {
         Environment.SetEnvironmentVariable(Key, Value);
     }

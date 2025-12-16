@@ -123,12 +123,12 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	/// <summary>
 	/// Adds services to the service collection. Called once before building the provider.
 	/// </summary>
-	protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
+	protected abstract void AddServices(IServiceCollection services, IConfiguration configuration);
 
 	/// <summary>
 	/// Returns the test application settings descriptors (JSON files) to include.
 	/// </summary>
-	protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
+	protected virtual IEnumerable<TestAppSettings> GetTestAppSettings() => [];
 
 	/// <summary>
 	/// Override to asynchronously clean up resources created by the fixture.
@@ -147,13 +147,10 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	/// </summary>
 	protected virtual void AddUserSecrets(IConfigurationBuilder configurationBuilder) { }
 
-	private IConfigurationRoot? GetConfigurationRoot()
+	private IConfigurationRoot GetConfigurationRoot()
 	{
 		var testAppSettings = GetTestAppSettings();
-		return
-			testAppSettings.All(setting => !string.IsNullOrEmpty(setting.Filename))
-			? GetConfigurationRoot(testAppSettings)
-			: default;
+		return GetConfigurationRoot(testAppSettings);
 	}
 
 	private IConfigurationRoot GetConfigurationRoot(IEnumerable<TestAppSettings> configurationFiles)
