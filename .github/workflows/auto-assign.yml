@@ -7,6 +7,8 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    # Skip this workflow for pull requests from forks as GITHUB_TOKEN lacks write permissions
+    if: github.event_name == 'issues' || (github.event.pull_request != null && github.event.pull_request.head.repo.full_name == github.repository)
     permissions:
       issues: write
       pull-requests: write
