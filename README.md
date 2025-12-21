@@ -149,6 +149,8 @@ protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
 protected abstract ValueTask DisposeAsyncCore();
 ```
 
+`TestBedFixture` now ignores any `TestAppSettings` entries whose `Filename` is null or empty before calling `AddJsonFile`. That means you can safely return placeholder descriptors or rely only on environment variables; optional JSON files can simply leave `Filename` blank and the framework skips them automatically when building the configuration root.
+ 
 `GetConfigurationFiles(...)` method returns a collection of the configuration files in your Xunit test project to the framework. `AddServices(...)` method must be used to wire up the implemented services.
 
 #### Secret manager
