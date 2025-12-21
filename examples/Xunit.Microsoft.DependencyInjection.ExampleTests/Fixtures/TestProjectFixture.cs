@@ -2,7 +2,7 @@
 
 public class TestProjectFixture : TestBedFixture
 {
-    protected override void AddServices(IServiceCollection services, IConfiguration? configuration)
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
         => services
         // Transient services - new instance for each injection
         .AddTransient<ICalculator, Calculator>()
@@ -23,8 +23,8 @@ public class TestProjectFixture : TestBedFixture
         .AddTransient<Func<ISingletonService>>(provider => () => provider.GetService<ISingletonService>()!)
 
         // Configure options
-        .Configure<Options>(config => configuration?.GetSection("Options").Bind(config))
-        .Configure<SecretValues>(config => configuration?.GetSection(nameof(SecretValues)).Bind(config));
+        .Configure<Options>(config => configuration.GetSection("Options").Bind(config))
+        .Configure<SecretValues>(config => configuration.GetSection(nameof(SecretValues)).Bind(config));
 
     protected override ValueTask DisposeAsyncCore()
         => new();
