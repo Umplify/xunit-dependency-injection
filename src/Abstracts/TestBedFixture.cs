@@ -155,7 +155,7 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 
 	private IConfigurationRoot GetConfigurationRoot(IEnumerable<TestAppSettings> configurationFiles)
 	{
-		foreach (var configurationFile in configurationFiles)
+		foreach (var configurationFile in configurationFiles.Where(appSetting => !string.IsNullOrEmpty(appSetting.Filename)))
 		{
 			ConfigurationBuilder.AddJsonFile(configurationFile.Filename!, optional: configurationFile.IsOptional);
 		}
