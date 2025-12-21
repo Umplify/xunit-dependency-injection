@@ -1,7 +1,7 @@
 variables:
   Major: 10
   Minor: 0
-  Revision: 1
+  Revision: 2
   BuildConfiguration: Release
 
 name: $(Major).$(Minor).$(Revision)
@@ -25,7 +25,7 @@ steps:
   displayName: 'Use .NET 10.0 sdk'
   inputs:
     packageType: sdk
-    version: 10.0.100
+    version: 10.0.101
     installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2

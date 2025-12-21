@@ -15,9 +15,7 @@ public class ConfigurationTestsWithoutAppsettings : TestBed<TestProjectFixtureWi
     public void EnvironmentVariablesViaConstructorAreAvailable()
     {
         _fixture.GetServiceProvider(_testOutputHelper);
-
         var value = _fixture.Configuration!.GetValue<string>(Key);
-
         Assert.Equal(Value, value);
     }
 }
