@@ -6,9 +6,11 @@ public class AsyncDisposableTests : TestBed<AsyncDisposableFixture>
         : base(testOutputHelper, fixture)
     {
     }
-    
+
+    // The test itself will pass but `dotnet  test` will fail in the teardown
+    // when the AsyncDisposableService has not been disposed asynchronously.
     [Fact]
-    public void EnvironmentVariablesViaConstructorAreAvailable()
+    public void AsyncDisposableServiceGetsDisposedAsynchronously()
     {
         var service = _fixture.GetService<AsyncDisposableService>(_testOutputHelper);
         Assert.NotNull(service);
