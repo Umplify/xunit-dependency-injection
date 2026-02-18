@@ -10,6 +10,7 @@ public class AsyncDisposableService : IDisposable, IAsyncDisposable
   public ValueTask DisposeAsync()
   {
     _disposedAsync = true;
+    GC.SuppressFinalize(this);
 
     return ValueTask.CompletedTask;
   }

@@ -7,7 +7,7 @@ public class AsyncDisposableTests : TestBed<AsyncDisposableFixture>
     {
     }
 
-    // The test itself will pass but `dotnet  test` will fail in the teardown
+    // The test itself will pass but `dotnet test` will fail in the teardown
     // when the AsyncDisposableService has not been disposed asynchronously.
     [Fact]
     public void AsyncDisposableServiceGetsDisposedAsynchronously()
