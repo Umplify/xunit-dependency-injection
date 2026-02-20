@@ -7,7 +7,7 @@ variables:
 name: $(Major).$(Minor).$(Revision)
 pr: none
 trigger:
-  batch: 'true'
+  batch: true
   tags:
    include:
      - refs/tags/*
