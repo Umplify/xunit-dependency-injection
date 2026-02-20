@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     
     <!-- Version configuration - can be overridden by build system -->
-    <Version Condition="'$(Version)' == ''">10.0.3</Version>
+    <Version Condition="'$(Version)' == ''">10.0.4</Version>
 	
     <!-- NuGet Package Properties -->
     <PackageId>Xunit.Microsoft.DependencyInjection</PackageId>
@@ -15,7 +15,7 @@
     <Company>Umplify Technologies Inc.</Company>
     <Product>Xunit.Microsoft.DependencyInjection</Product>
     <Description>This package contains the necessary classes and features to leverage Xunit's fixture class for Microsoft dependency injection framework.</Description>
-    <Copyright>2025 - All rights reserved, Umplify Technologies Inc.</Copyright>
+    <Copyright>2026 - All rights reserved, Umplify Technologies Inc.</Copyright>
     <PackageTags>xunit;dependency-injection;microsoft-dependency-injection;xunit-dependency-injection</PackageTags>
     <PackageProjectUrl>https://umplify.github.io/xunit-dependency-injection/</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

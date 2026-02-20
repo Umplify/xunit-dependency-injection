@@ -1,13 +1,13 @@
 variables:
   Major: 10
   Minor: 0
-  Revision: 3
+  Revision: 4
   BuildConfiguration: Release
 
 name: $(Major).$(Minor).$(Revision)
 pr: none
 trigger:
-  batch: true
+  batch: 'true'
   tags:
    include:
      - refs/tags/*
