@@ -114,6 +114,11 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		if (!_disposedAsync)
 		{
 			await DisposeAsyncCore();
+			if (_serviceProvider is not null)
+			{
+				await _serviceProvider.DisposeAsync();
+				_serviceProvider = null;
+			}
 			Dispose();
 			_disposedAsync = true;
 		}
