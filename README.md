@@ -18,6 +18,7 @@ This library brings **Microsoft's dependency injection container** to Xunit by l
 - 🔑 **Keyed services support** - Full .NET 10.0 keyed services integration
 - ⚙️ **Configuration integration** - Support for `appsettings.json`, user secrets, and environment variables
 - 🧪 **Service lifetime management** - Transient, Scoped, and Singleton services work as expected
+- ♻️ **Async disposal support** - Container-managed `IAsyncDisposable` services are disposed asynchronously during fixture teardown
 - 📦 **Microsoft.Extensions ecosystem** - Built on the same DI container used by ASP.NET Core
 - 🔄 **Gradual migration** - Adopt new features incrementally without breaking existing tests
 - 🏗️ **Production-ready** - Used by [Digital Silo](https://digitalsilo.io/) and other production applications
@@ -141,13 +142,15 @@ public class MyTraditionalTests : TestBed<MyTestFixture>
 
 ### Setup your fixture
 
-The abstract class of `Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture` contains the necessary functionalities to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class must derive from this abstract class and implement the following two abstract methods:
+The abstract class of `Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture` contains the necessary functionalities to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class must derive from this abstract class and implement the following abstract methods:
 
 ```csharp
 protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
 protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
 protected abstract ValueTask DisposeAsyncCore();
 ```
+
+Use `DisposeAsyncCore()` to clean up fixture-owned resources (for example, files, sockets, or external clients created by the fixture). Service cleanup for dependencies resolved from the DI container is handled by the framework during async teardown.
 
 `TestBedFixture` now ignores any `TestAppSettings` entries whose `Filename` is null or empty before calling `AddJsonFile`. That means you can safely return placeholder descriptors or rely only on environment variables; optional JSON files can simply leave `Filename` blank and the framework skips them automatically when building the configuration root.
  
@@ -290,9 +293,24 @@ Also, the test class should be decorated by the following attribute:
 
 To have managed resources cleaned up, simply override the virtual method of `Clear()`. This is an optional step.
 
-#### Clearing managed resourced asynchronously
+#### Clearing managed resources asynchronously
 
-Simply override the virtual method of `DisposeAsyncCore()` for this purpose. This is also an optional step.
+`TestBedFixture` performs async teardown and disposes the DI `ServiceProvider` asynchronously. This ensures container-managed services implementing `IAsyncDisposable` are disposed correctly during fixture teardown.
+
+If you need additional async cleanup for fixture-owned resources, override `DisposeAsyncCore()`:
+
+```csharp
+public sealed class MyTestFixture : TestBedFixture
+{
+    protected override ValueTask DisposeAsyncCore()
+    {
+        // Cleanup resources created/owned by the fixture itself.
+        return ValueTask.CompletedTask;
+    }
+}
+```
+
+For a full working example, see `AsyncDisposableTests` and `AsyncDisposableFixture` in the examples project.
 
 ## Running tests in order
 
@@ -322,6 +340,7 @@ public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 * **Factory pattern**: See `FactoryConstructorInjectionTests.cs` for experimental constructor injection scenarios
 * **Keyed services**: See `KeyedServicesTests.cs` for .NET 9.0 keyed service examples
 * **Configuration**: See `UserSecretTests.cs` for configuration and user secrets integration
+* **Async disposal**: See `AsyncDisposableTests.cs` and `Fixtures/AsyncDisposableFixture.cs` for async teardown of `IAsyncDisposable` services
 * **Advanced patterns**: See `AdvancedDependencyInjectionTests.cs` for `IOptions<T>`, `Func<T>`, and `Action<T>` examples
 
 🏢 [Digital Silo](https://digitalsilo.io/)'s unit tests and integration tests are using this library in production.
