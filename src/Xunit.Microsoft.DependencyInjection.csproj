@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     
     <!-- Version configuration - can be overridden by build system -->
-    <Version Condition="'$(Version)' == ''">10.0.4</Version>
+    <Version Condition="'$(Version)' == ''">10.0.5</Version>
 	
     <!-- NuGet Package Properties -->
     <PackageId>Xunit.Microsoft.DependencyInjection</PackageId>
