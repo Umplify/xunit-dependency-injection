@@ -11,7 +11,8 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 {
 	private readonly ServiceCollection _services;
-	private ServiceProvider? _serviceProvider;
+	private readonly Lock _serviceProviderLock = new();
+	private volatile ServiceProvider? _serviceProvider;
 	private bool _disposedValue;
 	private bool _disposedAsync;
 	private bool _servicesAdded;
@@ -40,6 +41,10 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	/// Builds (lazily) and returns the root <see cref="ServiceProvider"/> including logging provider and options.
 	/// Subsequent calls return a cached provider.
 	/// </summary>
+	/// <remarks>
+	/// Initialization is thread-safe, so a fixture shared by tests that run concurrently
+	/// (for example under xUnit.net v4's <c>ParallelMode.All</c>) still builds exactly one container.
+	/// </remarks>
 	/// <param name="testOutputHelper">The test output helper used for logging.</param>
 	public ServiceProvider GetServiceProvider(ITestOutputHelper testOutputHelper)
 	{
@@ -47,16 +52,24 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		{
 			return _serviceProvider;
 		}
-		if (!_servicesAdded)
+
+		lock (_serviceProviderLock)
 		{
-			AddUserSecrets(ConfigurationBuilder);
-			Configuration = GetConfigurationRoot();
-			AddServices(_services, Configuration);
-			_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
-			_services.AddOptions();
-			_servicesAdded = true;
+			if (_serviceProvider is not null)
+			{
+				return _serviceProvider;
+			}
+			if (!_servicesAdded)
+			{
+				AddUserSecrets(ConfigurationBuilder);
+				Configuration = GetConfigurationRoot();
+				AddServices(_services, Configuration);
+				_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
+				_services.AddOptions();
+				_servicesAdded = true;
+			}
+			return _serviceProvider = _services.BuildServiceProvider();
 		}
-		return _serviceProvider = _services.BuildServiceProvider();
 	}
 
 	/// <summary>

@@ -1,7 +1,7 @@
 variables:
   Major: 10
-  Minor: 0
-  Revision: 5
+  Minor: 1
+  Revision: 0
   BuildConfiguration: Release
 
 name: $(Major).$(Minor).$(Revision)
@@ -25,7 +25,7 @@ steps:
   displayName: 'Use .NET 10.0 sdk'
   inputs:
     packageType: sdk
-    version: 10.0.301
+    version: 10.0.400
     installationPath: $(Agent.ToolsDirectory)/dotnet
 - script: echo Started restoring the source code
 - task: DotNetCoreCLI@2
@@ -53,14 +53,26 @@ steps:
     arguments: '--configuration $(BuildConfiguration) /p:ContinuousIntegrationBuild=true /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:Version=$(Major).$(Minor).$(Revision)'
     outputDir: '$(Build.ArtifactStagingDirectory)/packages'
     nobuild: false
+# xunit.v3 4.x runs on Microsoft Testing Platform, which rejects VSTest options such as the
+# `--logger trx` that this task injects when publishTestResults is left on. Ask MTP for the TRX
+# report directly and publish it in a separate step.
 - task: DotNetCoreCLI@2
   displayName: 'Running tests in example folder'
   continueOnError: true
   inputs:
     command: 'test'
     projects: '**/examples/Xunit.Microsoft.DependencyInjection.ExampleTests'
-    arguments: '--configuration $(BuildConfiguration)'
+    arguments: '--configuration $(BuildConfiguration) --report-trx --results-directory $(Agent.TempDirectory)/TestResults'
+    publishTestResults: false
     testRunTitle: 'Running sample tests'
+- task: PublishTestResults@2
+  displayName: 'Publishing sample test results'
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '$(Agent.TempDirectory)/TestResults/*.trx'
+    testRunTitle: 'Running sample tests'
+    failTaskOnFailedTests: false
     
 - script: echo Started publishing
 - task: DotNetCoreCLI@2
