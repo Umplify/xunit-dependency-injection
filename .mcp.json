@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "nuget": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": ["NuGet.Mcp.Server", "--yes"],
+      "env": {}
+    }
+  }
+}
