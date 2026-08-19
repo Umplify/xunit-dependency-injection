@@ -9,7 +9,9 @@ jobs:
       issues: write
     steps:
     - name: 'Auto-assign issue'
-      uses: pozil/auto-assign-issue@v1
+      # Pinned to the commit the v1 tag resolves to (2021-09-01). Mutable tags can be
+      # repointed by the action owner or an attacker who gains access to that repo.
+      uses: pozil/auto-assign-issue@d11e715efc663fe323c3d8d4d3cbbfdddd539baf # v1
       with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           assignees: Arash-Sabet
