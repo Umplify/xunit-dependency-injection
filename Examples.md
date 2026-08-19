@@ -258,7 +258,7 @@ public class PropertyInjectionTests : TestBedWithDI<TestProjectFixture>
 
 ## Keyed Services
 
-Keyed services are a .NET 9.0 feature that allows you to register multiple implementations of the same interface with different keys:
+Keyed services let you register multiple implementations of the same interface under different keys. They were introduced in .NET 8 and are fully supported by this library on .NET 10.0:
 
 ### Traditional Approach with Keyed Services
 

@@ -34,7 +34,7 @@ Also please check the [migration guide](https://xunit.net/docs/getting-started/v
 ### Example on how to reference xunit.v3
 
 ```xml
-<PackageReference Include="xunit.v3" Version="3.2.0" />
+<PackageReference Include="xunit.v3" Version="3.2.2" />
 ```
 
 ## Getting started
@@ -63,7 +63,7 @@ dotnet add package Xunit.Microsoft.DependencyInjection
 
 #### PackageReference (in your .csproj file)
 ```xml
-<PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="9.2.0" />
+<PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="10.0.5" />
 ```
 
 **✨ That's it!** All required Microsoft.Extensions dependencies are now automatically included with the package, so you don't need to manually add them to your test project.
@@ -179,7 +179,7 @@ To access async scopes simply call the following method in the abstract fixture 
 public AsyncServiceScope GetAsyncScope(ITestOutputHelper testOutputHelper);
 ```
 
-### Accessing the keyed wired up services in .NET 9.0
+### Accessing the keyed wired up services in .NET 10.0
 
 You can call the following method to access the keyed already-wired up services:
 
@@ -189,7 +189,7 @@ T? GetKeyedService<T>([DisallowNull] string key, ITestOutputHelper testOutputHel
 
 ## Constructor Dependency Injection
 
-**New in this version (ver 9.2.0 and beyond)**: The library now supports constructor-style dependency injection while maintaining full backward compatibility with the existing fixture-based approach.
+**Available from version 9.2.0 onward**: The library supports constructor-style dependency injection while maintaining full backward compatibility with the existing fixture-based approach.
 
 ### Property Injection with TestBedWithDI (Recommended)
 
@@ -338,7 +338,7 @@ public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 * **Traditional approach**: See examples using `TestBed<TFixture>` and `_fixture.GetService<T>(_testOutputHelper)`  
 * **Property injection**: See `PropertyInjectionTests.cs` for examples using `TestBedWithDI<TFixture>` with `[Inject]` attributes
 * **Factory pattern**: See `FactoryConstructorInjectionTests.cs` for experimental constructor injection scenarios
-* **Keyed services**: See `KeyedServicesTests.cs` for .NET 9.0 keyed service examples
+* **Keyed services**: See `KeyedServicesTests.cs` for .NET 10.0 keyed service examples
 * **Configuration**: See `UserSecretTests.cs` for configuration and user secrets integration
 * **Async disposal**: See `AsyncDisposableTests.cs` and `Fixtures/AsyncDisposableFixture.cs` for async teardown of `IAsyncDisposable` services
 * **Advanced patterns**: See `AdvancedDependencyInjectionTests.cs` for `IOptions<T>`, `Func<T>`, and `Action<T>` examples
