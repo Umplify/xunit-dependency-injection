@@ -20,22 +20,28 @@ This library brings **Microsoft's dependency injection container** to Xunit by l
 - 🧪 **Service lifetime management** - Transient, Scoped, and Singleton services work as expected
 - ♻️ **Async disposal support** - Container-managed `IAsyncDisposable` services are disposed asynchronously during fixture teardown
 - 📦 **Microsoft.Extensions ecosystem** - Built on the same DI container used by ASP.NET Core
+- 🔓 **Parallel-safe fixtures** - A shared `TestBedFixture` builds exactly one container even under xUnit.net v4's `ParallelMode.All`
+- 🪢 **xUnit.net v4 lifecycle hooks** - Fixtures can implement `INotifyTestClassLifecycleAsync` and friends for per-class setup
 - 🔄 **Gradual migration** - Adopt new features incrementally without breaking existing tests
 - 🏗️ **Production-ready** - Used by [Digital Silo](https://digitalsilo.io/) and other production applications
 
 ## Important: xUnit versions
 
 * For **xUnit** packages use Xunit.Microsoft.DependencyInjection versions **up to** 9.0.5
-* For **xUnit.v3** packages use Xunit.Microsoft.DependencyInjection versions **from** 9.1.0
-* For **.NET 10.0** use Xunit.Microsoft.DependencyInjection version **10.0.0 or later**
+* For **xUnit.v3 3.x** packages use Xunit.Microsoft.DependencyInjection versions **9.1.0 – 10.0.5**
+* For **xUnit.v3 4.x** packages use Xunit.Microsoft.DependencyInjection version **10.1.0 or later**
 
 Also please check the [migration guide](https://xunit.net/docs/getting-started/v3/migration) from xUnit for test authors.
 
 ### Example on how to reference xunit.v3
 
 ```xml
-<PackageReference Include="xunit.v3" Version="3.2.2" />
+<PackageReference Include="xunit.v3" Version="4.0.0" />
 ```
+
+> ⚠️ **xUnit.net v4 requires Microsoft Testing Platform.** `dotnet test` no longer runs v4 test
+> projects through VSTest on the .NET 10 SDK. See [Running your tests on xUnit.net v4](#running-your-tests-on-xunitnet-v4)
+> for the one-time `global.json` change you need.
 
 ## Getting started
 
@@ -63,7 +69,7 @@ dotnet add package Xunit.Microsoft.DependencyInjection
 
 #### PackageReference (in your .csproj file)
 ```xml
-<PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="10.0.5" />
+<PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="10.1.0" />
 ```
 
 **✨ That's it!** All required Microsoft.Extensions dependencies are now automatically included with the package, so you don't need to manually add them to your test project.
@@ -312,6 +318,149 @@ public sealed class MyTestFixture : TestBedFixture
 
 For a full working example, see `AsyncDisposableTests` and `AsyncDisposableFixture` in the examples project.
 
+## Running your tests on xUnit.net v4
+
+Version 10.1.0 of this library builds against **xunit.v3 4.0.0**. Most of your test code carries over
+unchanged, but the runner and the parallelization model both moved, so read this section before you upgrade.
+
+### Microsoft Testing Platform is now required
+
+xunit.v3 4.x runs on **Microsoft Testing Platform (MTP) v2**, and the .NET 10 SDK no longer bridges MTP
+test projects through VSTest. Without any change, `dotnet test` fails during the build:
+
+```text
+error : Testing with VSTest target is no longer supported by Microsoft.Testing.Platform on .NET 10 SDK
+and later. If you use dotnet test, you should opt-in to the new dotnet test experience.
+```
+
+Opt in once, per repository, by adding a `test` section to `global.json` next to your solution:
+
+```json
+{
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}
+```
+
+That is the only change most projects need. Two follow-ups apply if you script `dotnet test` in CI, because
+MTP rejects VSTest-only switches:
+
+| VSTest (xUnit.net v3 3.x)                  | Microsoft Testing Platform (xUnit.net v4)                             |
+| ------------------------------------------ | --------------------------------------------------------------------- |
+| `--logger trx`                              | `--report-trx` (reference `Microsoft.Testing.Extensions.TrxReport`)     |
+| `--collect "XPlat Code Coverage"` (coverlet) | `--coverage` (reference `Microsoft.Testing.Extensions.CodeCoverage`)    |
+| `dotnet test MyTests.csproj`                | `dotnet test --project MyTests.csproj`                                  |
+
+The examples project in this repository shows the resulting package set, and `azure-pipelines.yml` shows the
+matching CI configuration.
+
+### Full test parallelization
+
+The headline v4 feature is the ability to run **every** test in an assembly concurrently, instead of only
+parallelizing across test collections.
+
+| `ParallelMode` | Behaviour                                                                       |
+| -------------- | ------------------------------------------------------------------------------- |
+| `None`         | Every test runs sequentially.                                                     |
+| `Collections`  | Tests in different collections run concurrently; tests inside one do not. **Default.** |
+| `All`          | Every test runs concurrently, regardless of collection or shared fixture.         |
+
+The default is unchanged, so upgrading does not alter how your tests are scheduled. To opt in, either set it
+in `testconfig.json` at the root of your test project:
+
+```json
+{
+  "xUnit": {
+    "parallelMode": "all"
+  }
+}
+```
+
+...or declare it in code:
+
+```csharp
+using Xunit.Sdk;
+using Xunit.v3;
+
+[assembly: Parallelization(Mode = ParallelMode.All)]
+```
+
+#### What this library guarantees under `ParallelMode.All`
+
+`TestBedFixture` builds its container lazily on first use. As of 10.1.0 that initialization is **thread-safe**:
+however many tests reach the fixture at once, exactly one `ServiceProvider` is built and every caller gets the
+same instance. See `ParallelFixtureAccessTests` in the examples project for the regression tests covering it.
+
+#### What still needs your attention
+
+`[Inject]` properties and `GetService<T>()` resolve from the fixture's **root** container, so a registered
+instance is shared by every test that shares the fixture. Under `Collections` those tests run one at a time and
+never observe each other. Under `All` they run simultaneously, and any service that carries mutable state —
+counters, caches, collected output — will interleave across tests.
+
+If you want per-test state, resolve through a scope instead, which hands out a fresh instance per call:
+
+```csharp
+var service = GetScopedService<IMyScopedService>();   // or _fixture.GetAsyncScope(_testOutputHelper)
+```
+
+Otherwise, opt the affected scope out of parallelization. Once parallelization is disabled at one layer it
+cannot be re-enabled below it:
+
+```csharp
+[CollectionDefinition("Dependency Injection", DisableParallelization = true)]  // whole collection
+public class DependencyInjectionCollection { }
+
+[TestClass(DisableParallelization = true)]                                     // one class
+public class MyTests : TestBedWithDI<MyTestFixture> { }
+
+[Fact(DisableParallelization = true)]                                          // one test
+public void MyTest() { }
+```
+
+### Fixtures can hook the test lifecycle
+
+v4 lets a fixture observe the assembly, collection, class, method and test lifecycle directly, which is a
+natural fit for a `TestBedFixture` that needs per-class setup beyond its DI registrations:
+
+```csharp
+using Xunit.v3;
+
+public class MyFixture : TestBedFixture, INotifyTestClassLifecycleAsync
+{
+    public ValueTask OnTestClassStartingAsync(IXunitTestClass testClass) => /* per-class setup */ default;
+
+    public ValueTask OnTestClassFinishedAsync(IXunitTestClass testClass) => /* per-class teardown */ default;
+
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
+        => services.AddSingleton<IMyService, MyService>();
+
+    protected override ValueTask DisposeAsyncCore() => new();
+}
+```
+
+Synchronous counterparts (`INotifyTestClassLifecycle`) and equivalents for the other levels
+(`INotifyTestAssemblyLifecycle`, `INotifyTestCollectionLifecycle`, `INotifyTestMethodLifecycle`,
+`INotifyTestLifecycle`, `INotifyTestCaseLifecycle`, plus `...Async` variants) are available too. A working
+example lives in `Fixtures/LifecycleAwareFixture.cs` and `LifecycleNotificationTests.cs`.
+
+### Other v4 additions worth knowing
+
+* **Test class and method orderers.** `ITestClassOrderer` and `ITestMethodOrderer` join the existing collection
+  and case orderers. Ordering is applied collection → class → method → case.
+* **Generic attributes.** `[TestCaseOrderer<TOrderer>]`, `[TestClassOrderer<TOrderer>]` and friends replace the
+  `typeof(...)` form with a compile-time checked one.
+* **Assertion improvements.** `Assert.All` / `Assert.AllAsync` take a `throwIfEmpty` argument so an empty
+  collection can be treated as a failure, and `Assert.OverrideMaxStringLength`,
+  `Assert.OverrideMaxEnumerableLength`, `Assert.OverrideMaxObjectDepth` and
+  `Assert.OverrideMaxObjectMemberCount` let a single test widen the truncation limits in failure messages.
+* **`removeAsyncSuffix`.** A `methodDisplayOptions` value that strips the `Async` suffix from test names.
+* **Native AOT.** Test projects can now be published ahead-of-time compiled.
+* **Retired platforms.** MTP v1 and Mono are no longer supported by xUnit.net.
+
+Full details are in the [xUnit.net v3 4.0.0 release notes](https://xunit.net/releases/v3/4.0.0).
+
 ## Running tests in order
 
 The library also has a bonus feature that simplifies running tests in order. The test class does not have to be derived from ```TestBed<T>``` class though and it can apply to all Xunit classes.
@@ -319,8 +468,29 @@ The library also has a bonus feature that simplifies running tests in order. The
 Decorate your Xunit test class with the following attribute and associate ```TestOrder(...)``` with ```Fact``` and ```Theory```:
 
 ```csharp
-[TestCaseOrderer("Xunit.Microsoft.DependencyInjection.TestsOrder.TestPriorityOrderer", "Xunit.Microsoft.DependencyInjection")]
+[TestCaseOrderer(typeof(TestPriorityOrderer))]
+public class MyOrderedTests
+{
+    [Fact, TestOrder(1)]
+    public void RunsFirst() { }
+
+    [Fact, TestOrder(2)]
+    public void RunsSecond() { }
+}
 ```
+
+On xUnit.net v4 you can use the generic form instead, which is checked at compile time:
+
+```csharp
+[TestCaseOrderer<TestPriorityOrderer>]
+public class MyOrderedTests { }
+```
+
+> The string-based overload (`[TestCaseOrderer("Type.Full.Name", "AssemblyName")]`) was removed in
+> xUnit.net v3 — replace it with `typeof(...)` or the generic attribute above.
+
+Ordering only holds while the tests being ordered are not running concurrently. See
+[Full test parallelization](#full-test-parallelization) below.
 
 ## Supporting configuration from `UserSecrets`
 
@@ -342,6 +512,8 @@ public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 * **Configuration**: See `UserSecretTests.cs` for configuration and user secrets integration
 * **Async disposal**: See `AsyncDisposableTests.cs` and `Fixtures/AsyncDisposableFixture.cs` for async teardown of `IAsyncDisposable` services
 * **Advanced patterns**: See `AdvancedDependencyInjectionTests.cs` for `IOptions<T>`, `Func<T>`, and `Action<T>` examples
+* **xUnit.net v4 lifecycle hooks**: See `Fixtures/LifecycleAwareFixture.cs` and `LifecycleNotificationTests.cs` for a fixture that reacts to test class start and finish
+* **Parallel-safe fixtures**: See `ParallelFixtureAccessTests.cs` for the concurrency guarantees of `TestBedFixture`
 
 🏢 [Digital Silo](https://digitalsilo.io/)'s unit tests and integration tests are using this library in production.
 
@@ -360,7 +532,19 @@ If you encounter build errors, ensure all required Microsoft.Extensions packages
 
 #### xUnit Version Compatibility
 - For **xUnit** packages use Xunit.Microsoft.DependencyInjection versions **up to** 9.0.5
-- For **xUnit.v3** packages use Xunit.Microsoft.DependencyInjection versions **from** 9.1.0
+- For **xUnit.v3 3.x** packages use Xunit.Microsoft.DependencyInjection versions **9.1.0 - 10.0.5**
+- For **xUnit.v3 4.x** packages use Xunit.Microsoft.DependencyInjection version **10.1.0 or later**
+
+#### `dotnet test` fails with "Testing with VSTest target is no longer supported"
+xUnit.net v4 runs on Microsoft Testing Platform, which the .NET 10 SDK will not launch through VSTest.
+Add the `test` section to `global.json` as described in
+[Running your tests on xUnit.net v4](#running-your-tests-on-xunitnet-v4).
+
+#### Tests interfere with each other after enabling `ParallelMode.All`
+`[Inject]` resolves services from the fixture's root container, so stateful services are shared by every
+test using that fixture. Resolve through `GetScopedService<T>()` for per-test state, or disable
+parallelization for the affected class with `[TestClass(DisableParallelization = true)]`. See
+[Full test parallelization](#full-test-parallelization).
 
 ### Need Help?
 
