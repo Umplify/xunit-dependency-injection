@@ -38,6 +38,4 @@ public class LifecycleAwareFixture : TestBedFixture, INotifyTestClassLifecycleAs
 	{
 		yield return new() { Filename = "appsettings.json", IsOptional = false };
 	}
-
-	protected override ValueTask DisposeAsyncCore() => new();
 }

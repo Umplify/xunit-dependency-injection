@@ -13,7 +13,8 @@ This document provides comprehensive examples demonstrating all the ways to use 
 7. [Advanced Dependency Injection Patterns](#advanced-dependency-injection-patterns)
 8. [Service Lifetimes](#service-lifetimes)
 9. [Test Ordering](#test-ordering)
-10. [xUnit.net v4 Features](#xunitnet-v4-features)
+10. [Asynchronous Fixture Initialization](#asynchronous-fixture-initialization)
+11. [xUnit.net v4 Features](#xunitnet-v4-features)
 
 ## Basic Setup
 
@@ -45,9 +46,6 @@ public class TestProjectFixture : TestBedFixture
         // Configure options
         .Configure<Options>(config => configuration?.GetSection("Options").Bind(config))
         .Configure<SecretValues>(config => configuration?.GetSection(nameof(SecretValues)).Bind(config));
-
-    protected override ValueTask DisposeAsyncCore()
-        => new();
 
     protected override IEnumerable<TestAppSettings> GetTestAppSettings()
     {
@@ -636,6 +634,50 @@ public class UnitTests : TestBed<TestProjectFixture>
 }
 ```
 
+## Asynchronous Fixture Initialization
+
+`TestBedFixture` implements xUnit.net's `IAsyncLifetime`. Override `InitializeAsyncCore()` for setup that
+must be awaited before any test uses the fixture - starting a Testcontainer, seeding a database, fetching
+remote configuration. xUnit.net awaits it once after construction, and because the container is built lazily
+on first use, values produced here can feed the registrations in `AddServices`:
+
+```csharp
+public class AsyncInitFixture : TestBedFixture
+{
+    private string? _connectionString;
+
+    protected override async ValueTask InitializeAsyncCore()
+    {
+        // Stands in for genuinely asynchronous work: starting a Testcontainer,
+        // seeding a database, fetching configuration from a remote source, etc.
+        await Task.Yield();
+        _connectionString = "Server=initialized-async";
+    }
+
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
+        => services.AddSingleton(new AsyncInitOptions(_connectionString!));
+}
+```
+
+```csharp
+public class AsyncInitTests(ITestOutputHelper testOutputHelper, AsyncInitFixture fixture)
+    : TestBed<AsyncInitFixture>(testOutputHelper, fixture)
+{
+    [Fact]
+    public void ValueProducedDuringInitializationIsRegisteredInTheContainer()
+    {
+        var options = _fixture.GetService<AsyncInitOptions>(_testOutputHelper);
+
+        Assert.NotNull(options);
+        Assert.Equal("Server=initialized-async", options.ConnectionString);
+    }
+}
+```
+
+The container does not exist while `InitializeAsyncCore` runs, so it cannot resolve services - it prepares
+the inputs that `AddServices` registers. Pair it with `DisposeAsyncCore()` for teardown; both are `virtual`
+no-ops by default. The full example lives in `Fixtures/AsyncInitFixture.cs` and `AsyncInitTests.cs`.
+
 ## xUnit.net v4 Features
 
 These examples target `xunit.v3` 4.0.0 and Xunit.Microsoft.DependencyInjection 10.1.0 or later. Remember that
@@ -672,8 +714,6 @@ public class LifecycleAwareFixture : TestBedFixture, INotifyTestClassLifecycleAs
 
     protected override void AddServices(IServiceCollection services, IConfiguration configuration)
         => services.AddSingleton<ICalculator, Calculator>();
-
-    protected override ValueTask DisposeAsyncCore() => new();
 }
 ```
 
