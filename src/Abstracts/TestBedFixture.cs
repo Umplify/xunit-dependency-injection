@@ -8,10 +8,11 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 /// Derived fixtures register services via <see cref="AddServices"/> and configuration files
 /// via <see cref="GetTestAppSettings"/>.
 /// </summary>
-public abstract class TestBedFixture : IDisposable, IAsyncDisposable
+public abstract class TestBedFixture : IDisposable, IAsyncDisposable, IAsyncLifetime
 {
 	private readonly ServiceCollection _services;
-	private ServiceProvider? _serviceProvider;
+	private readonly Lock _serviceProviderLock = new();
+	private volatile ServiceProvider? _serviceProvider;
 	private bool _disposedValue;
 	private bool _disposedAsync;
 	private bool _servicesAdded;
@@ -40,6 +41,10 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	/// Builds (lazily) and returns the root <see cref="ServiceProvider"/> including logging provider and options.
 	/// Subsequent calls return a cached provider.
 	/// </summary>
+	/// <remarks>
+	/// Initialization is thread-safe, so a fixture shared by tests that run concurrently
+	/// (for example under xUnit.net v4's <c>ParallelMode.All</c>) still builds exactly one container.
+	/// </remarks>
 	/// <param name="testOutputHelper">The test output helper used for logging.</param>
 	public ServiceProvider GetServiceProvider(ITestOutputHelper testOutputHelper)
 	{
@@ -47,16 +52,24 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 		{
 			return _serviceProvider;
 		}
-		if (!_servicesAdded)
+
+		lock (_serviceProviderLock)
 		{
-			AddUserSecrets(ConfigurationBuilder);
-			Configuration = GetConfigurationRoot();
-			AddServices(_services, Configuration);
-			_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
-			_services.AddOptions();
-			_servicesAdded = true;
+			if (_serviceProvider is not null)
+			{
+				return _serviceProvider;
+			}
+			if (!_servicesAdded)
+			{
+				AddUserSecrets(ConfigurationBuilder);
+				Configuration = GetConfigurationRoot();
+				AddServices(_services, Configuration);
+				_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
+				_services.AddOptions();
+				_servicesAdded = true;
+			}
+			return _serviceProvider = _services.BuildServiceProvider();
 		}
-		return _serviceProvider = _services.BuildServiceProvider();
 	}
 
 	/// <summary>
@@ -100,6 +113,12 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	//     Dispose(disposing: false);
 	// }
 
+	/// <summary>
+	/// Called by xUnit.net after the fixture is constructed and before the first test that uses it
+	/// runs. Delegates to <see cref="InitializeAsyncCore"/>; override that method for async setup.
+	/// </summary>
+	public virtual ValueTask InitializeAsync() => InitializeAsyncCore();
+
 	/// <inheritdoc />
 	public void Dispose()
 	{
@@ -136,9 +155,20 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	protected virtual IEnumerable<TestAppSettings> GetTestAppSettings() => [];
 
 	/// <summary>
-	/// Override to asynchronously clean up resources created by the fixture.
+	/// Override to asynchronously prepare resources before the service container is built.
+	/// Runs exactly once, after construction and before the first test resolves anything, so values
+	/// produced here (connection strings, started containers) can be consumed by <see cref="AddServices"/>.
+	/// The container does not exist yet, so services cannot be resolved from within this method.
+	/// If initialization fails partway, release anything already created before letting the exception
+	/// propagate. Default implementation does nothing.
 	/// </summary>
-	protected abstract ValueTask DisposeAsyncCore();
+	protected virtual ValueTask InitializeAsyncCore() => new();
+
+	/// <summary>
+	/// Override to asynchronously clean up resources created by the fixture.
+	/// Default implementation does nothing.
+	/// </summary>
+	protected virtual ValueTask DisposeAsyncCore() => new();
 
 	/// <summary>
 	/// Allows derived fixtures to customize logging by adding or decorating providers.

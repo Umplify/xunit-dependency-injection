@@ -13,6 +13,8 @@ This document provides comprehensive examples demonstrating all the ways to use 
 7. [Advanced Dependency Injection Patterns](#advanced-dependency-injection-patterns)
 8. [Service Lifetimes](#service-lifetimes)
 9. [Test Ordering](#test-ordering)
+10. [Asynchronous Fixture Initialization](#asynchronous-fixture-initialization)
+11. [xUnit.net v4 Features](#xunitnet-v4-features)
 
 ## Basic Setup
 
@@ -44,9 +46,6 @@ public class TestProjectFixture : TestBedFixture
         // Configure options
         .Configure<Options>(config => configuration?.GetSection("Options").Bind(config))
         .Configure<SecretValues>(config => configuration?.GetSection(nameof(SecretValues)).Bind(config));
-
-    protected override ValueTask DisposeAsyncCore()
-        => new();
 
     protected override IEnumerable<TestAppSettings> GetTestAppSettings()
     {
@@ -600,7 +599,7 @@ public class SingletonServiceTests : TestBed<TestProjectFixture>
 The library provides a bonus feature for running tests in order:
 
 ```csharp
-[TestCaseOrderer("Xunit.Microsoft.DependencyInjection.TestsOrder.TestPriorityOrderer", "Xunit.Microsoft.DependencyInjection")]
+[TestCaseOrderer(typeof(TestPriorityOrderer))]   // or [TestCaseOrderer<TestPriorityOrderer>] on xUnit.net v4
 public class UnitTests : TestBed<TestProjectFixture>
 {
     public UnitTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture) 
@@ -634,6 +633,160 @@ public class UnitTests : TestBed<TestProjectFixture>
     }
 }
 ```
+
+## Asynchronous Fixture Initialization
+
+`TestBedFixture` implements xUnit.net's `IAsyncLifetime`. Override `InitializeAsyncCore()` for setup that
+must be awaited before any test uses the fixture - starting a Testcontainer, seeding a database, fetching
+remote configuration. xUnit.net awaits it once after construction, and because the container is built lazily
+on first use, values produced here can feed the registrations in `AddServices`:
+
+```csharp
+public class AsyncInitFixture : TestBedFixture
+{
+    private string? _connectionString;
+
+    protected override async ValueTask InitializeAsyncCore()
+    {
+        // Stands in for genuinely asynchronous work: starting a Testcontainer,
+        // seeding a database, fetching configuration from a remote source, etc.
+        await Task.Yield();
+        _connectionString = "Server=initialized-async";
+    }
+
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
+        => services.AddSingleton(new AsyncInitOptions(_connectionString!));
+}
+```
+
+```csharp
+public class AsyncInitTests(ITestOutputHelper testOutputHelper, AsyncInitFixture fixture)
+    : TestBed<AsyncInitFixture>(testOutputHelper, fixture)
+{
+    [Fact]
+    public void ValueProducedDuringInitializationIsRegisteredInTheContainer()
+    {
+        var options = _fixture.GetService<AsyncInitOptions>(_testOutputHelper);
+
+        Assert.NotNull(options);
+        Assert.Equal("Server=initialized-async", options.ConnectionString);
+    }
+}
+```
+
+The container does not exist while `InitializeAsyncCore` runs, so it cannot resolve services - it prepares
+the inputs that `AddServices` registers. Pair it with `DisposeAsyncCore()` for teardown; both are `virtual`
+no-ops by default. The full example lives in `Fixtures/AsyncInitFixture.cs` and `AsyncInitTests.cs`.
+
+## xUnit.net v4 Features
+
+These examples target `xunit.v3` 4.0.0 and Xunit.Microsoft.DependencyInjection 10.1.0 or later. Remember that
+v4 runs on Microsoft Testing Platform, so your repository needs a `global.json` containing:
+
+```json
+{
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}
+```
+
+### Fixture lifecycle notifications
+
+A fixture can react to the test class that consumes it, without introducing a second fixture type:
+
+```csharp
+using Xunit.v3;
+
+public class LifecycleAwareFixture : TestBedFixture, INotifyTestClassLifecycleAsync
+{
+    private readonly List<string> _startedClasses = [];
+
+    public IReadOnlyList<string> StartedClasses => _startedClasses;
+
+    public ValueTask OnTestClassStartingAsync(IXunitTestClass testClass)
+    {
+        _startedClasses.Add(testClass.TestClassSimpleName);
+        return default;
+    }
+
+    public ValueTask OnTestClassFinishedAsync(IXunitTestClass testClass) => default;
+
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
+        => services.AddSingleton<ICalculator, Calculator>();
+}
+```
+
+```csharp
+public class LifecycleNotificationTests : TestBedWithDI<LifecycleAwareFixture>
+{
+    private readonly LifecycleAwareFixture _lifecycleFixture;
+
+    public LifecycleNotificationTests(ITestOutputHelper testOutputHelper, LifecycleAwareFixture fixture)
+        : base(testOutputHelper, fixture) => _lifecycleFixture = fixture;
+
+    [Fact]
+    public void FixtureIsNotifiedThatTheTestClassStarted()
+        => Assert.Contains(nameof(LifecycleNotificationTests), _lifecycleFixture.StartedClasses);
+}
+```
+
+Equivalents exist for the assembly, collection, method, test and test case levels, in both synchronous
+(`INotifyTestClassLifecycle`) and asynchronous forms.
+
+### Running every test in parallel
+
+`ParallelMode.All` runs all tests concurrently, including tests that share a fixture. Enable it in
+`testconfig.json` at the root of your test project:
+
+```json
+{
+  "xUnit": {
+    "parallelMode": "all"
+  }
+}
+```
+
+`TestBedFixture` builds its container under a lock, so concurrent first access still produces a single
+`ServiceProvider`:
+
+```csharp
+[Fact]
+public void GetServiceProvider_ConcurrentFirstAccess_BuildsSingleProvider()
+{
+    using var fixture = new TestProjectFixture();
+    var outputHelper = TestContext.Current.TestOutputHelper!;
+
+    var providers = new ServiceProvider[64];
+    Parallel.For(0, providers.Length, i => providers[i] = fixture.GetServiceProvider(outputHelper));
+
+    Assert.Single(providers.Distinct());
+}
+```
+
+What the library cannot make safe for you is shared *state*. `[Inject]` and `GetService<T>()` resolve from the
+fixture's root container, so a stateful service is shared by every test using that fixture and those tests now
+run at the same time. Either resolve per-test state through a scope:
+
+```csharp
+var scoped = GetScopedService<IScopedService>();   // fresh instance per call
+```
+
+...or opt the class out of parallelization:
+
+```csharp
+[TestClass(DisableParallelization = true)]
+public class ScopedServiceTests : TestBedWithDI<TestProjectFixture> { }
+```
+
+`DisableParallelization` is also available on `[CollectionDefinition]`, `[Fact]`, `[Theory]` and theory data
+rows. Once disabled at one layer it cannot be re-enabled below it.
+
+### Ordering test classes and methods
+
+Alongside the existing collection and case orderers, v4 adds `ITestClassOrderer` and `ITestMethodOrderer`,
+applied via `[TestClassOrderer<TOrderer>]` and `[TestMethodOrderer<TOrderer>]`. Ordering runs
+collection → class → method → case.
 
 ## Best Practices
 

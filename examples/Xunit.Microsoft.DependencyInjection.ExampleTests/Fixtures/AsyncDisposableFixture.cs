@@ -9,9 +9,4 @@ public class AsyncDisposableFixture : TestBedFixture
   {
     services.AddSingleton<AsyncDisposableService>();
   }
-
-  protected override ValueTask DisposeAsyncCore()
-  {
-    return ValueTask.CompletedTask;
-  }
 }

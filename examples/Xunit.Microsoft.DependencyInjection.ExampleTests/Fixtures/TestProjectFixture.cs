@@ -26,9 +26,6 @@ public class TestProjectFixture : TestBedFixture
         .Configure<Options>(config => configuration.GetSection("Options").Bind(config))
         .Configure<SecretValues>(config => configuration.GetSection(nameof(SecretValues)).Bind(config));
 
-    protected override ValueTask DisposeAsyncCore()
-        => new();
-
     protected override IEnumerable<TestAppSettings> GetTestAppSettings()
     {
         yield return new() { Filename = "appsettings.json", IsOptional = false };

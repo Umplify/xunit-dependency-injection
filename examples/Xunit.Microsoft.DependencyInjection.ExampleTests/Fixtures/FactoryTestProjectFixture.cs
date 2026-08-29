@@ -30,9 +30,6 @@ public class FactoryTestProjectFixture : TestBedFactoryFixture
         .AddTransient<CalculatorService>()
         .AddTransient<SingleKeyedService>();
 
-    protected override ValueTask DisposeAsyncCore()
-        => new();
-
     protected override IEnumerable<TestAppSettings> GetTestAppSettings()
     {
         yield return new() { Filename = "appsettings.json", IsOptional = false };
