@@ -8,7 +8,7 @@ namespace Xunit.Microsoft.DependencyInjection.Abstracts;
 /// Derived fixtures register services via <see cref="AddServices"/> and configuration files
 /// via <see cref="GetTestAppSettings"/>.
 /// </summary>
-public abstract class TestBedFixture : IDisposable, IAsyncDisposable
+public abstract class TestBedFixture : IDisposable, IAsyncDisposable, IAsyncLifetime
 {
 	private readonly ServiceCollection _services;
 	private readonly Lock _serviceProviderLock = new();
@@ -113,6 +113,12 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	//     Dispose(disposing: false);
 	// }
 
+	/// <summary>
+	/// Called by xUnit.net after the fixture is constructed and before the first test that uses it
+	/// runs. Delegates to <see cref="InitializeAsyncCore"/>; override that method for async setup.
+	/// </summary>
+	public virtual ValueTask InitializeAsync() => InitializeAsyncCore();
+
 	/// <inheritdoc />
 	public void Dispose()
 	{
@@ -149,9 +155,20 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable
 	protected virtual IEnumerable<TestAppSettings> GetTestAppSettings() => [];
 
 	/// <summary>
-	/// Override to asynchronously clean up resources created by the fixture.
+	/// Override to asynchronously prepare resources before the service container is built.
+	/// Runs exactly once, after construction and before the first test resolves anything, so values
+	/// produced here (connection strings, started containers) can be consumed by <see cref="AddServices"/>.
+	/// The container does not exist yet, so services cannot be resolved from within this method.
+	/// If initialization fails partway, release anything already created before letting the exception
+	/// propagate. Default implementation does nothing.
 	/// </summary>
-	protected abstract ValueTask DisposeAsyncCore();
+	protected virtual ValueTask InitializeAsyncCore() => new();
+
+	/// <summary>
+	/// Override to asynchronously clean up resources created by the fixture.
+	/// Default implementation does nothing.
+	/// </summary>
+	protected virtual ValueTask DisposeAsyncCore() => new();
 
 	/// <summary>
 	/// Allows derived fixtures to customize logging by adding or decorating providers.

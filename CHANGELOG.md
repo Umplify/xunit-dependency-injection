@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Microsoft.Testing.Platform on .NET 10 SDK and later."
 
 ### Added
+- `TestBedFixture` now implements xUnit.net's `IAsyncLifetime`. Override the new
+  `InitializeAsyncCore()` virtual method for asynchronous setup (starting a Testcontainer, seeding a
+  database) that xUnit.net awaits before any test uses the fixture; because the container is built lazily,
+  values produced there can feed the registrations in `AddServices`. The container does not exist yet
+  during initialization, so services cannot be resolved from within it. See `AsyncInitFixture` and
+  `AsyncInitTests` in the examples project.
 - Fixtures can now use xUnit.net v4's lifecycle notification interfaces (`INotifyTestClassLifecycleAsync`
   and its siblings) for per-class setup and teardown. See `LifecycleAwareFixture` and
   `LifecycleNotificationTests` in the examples project.
@@ -32,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   different singletons. This is required for shared fixtures to work under `ParallelMode.All`.
 
 ### Changed
+- `TestBedFixture.DisposeAsyncCore()` is now `virtual` with a no-op default instead of `abstract`.
+  Existing overrides keep working unchanged; fixtures with nothing to clean up can delete their empty
+  override. Note: a fixture that already implemented `IAsyncLifetime` by hand will get a CS0108 warning
+  on its `InitializeAsync` - change it to `override` (behavior is unchanged either way).
 - Updated all Microsoft.Extensions.* packages from 10.0.9 to 10.0.11
 - Updated `xunit.runner.visualstudio` from 3.1.5 to 4.0.0
 - Updated `Microsoft.NET.Test.Sdk` from 18.7.0 to 18.9.0

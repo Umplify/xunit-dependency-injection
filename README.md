@@ -22,6 +22,7 @@ This library brings **Microsoft's dependency injection container** to Xunit by l
 - 📦 **Microsoft.Extensions ecosystem** - Built on the same DI container used by ASP.NET Core
 - 🔓 **Parallel-safe fixtures** - A shared `TestBedFixture` builds exactly one container even under xUnit.net v4's `ParallelMode.All`
 - 🪢 **xUnit.net v4 lifecycle hooks** - Fixtures can implement `INotifyTestClassLifecycleAsync` and friends for per-class setup
+- ⚡ **Async fixture initialization** - Override `InitializeAsyncCore` for async setup that completes before the container is built
 - 🔄 **Gradual migration** - Adopt new features incrementally without breaking existing tests
 - 🏗️ **Production-ready** - Used by [Digital Silo](https://digitalsilo.io/) and other production applications
 
@@ -92,8 +93,6 @@ public class MyTestFixture : TestBedFixture
             .AddTransient<IMyService, MyService>()
             .AddScoped<IMyScopedService, MyScopedService>();
 
-    protected override ValueTask DisposeAsyncCore() => new();
-
     protected override IEnumerable<TestAppSettings> GetTestAppSettings()
     {
         yield return new() { Filename = "appsettings.json", IsOptional = true };
@@ -148,12 +147,18 @@ public class MyTraditionalTests : TestBed<MyTestFixture>
 
 ### Setup your fixture
 
-The abstract class of `Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture` contains the necessary functionalities to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class must derive from this abstract class and implement the following abstract methods:
+The abstract class of `Xunit.Microsoft.DependencyInjection.Abstracts.TestBedFixture` contains the necessary functionalities to add services and configurations to Microsoft's dependency injection container. Your concrete test fixture class must derive from this abstract class and implement its single abstract method:
 
 ```csharp
 protected abstract void AddServices(IServiceCollection services, IConfiguration? configuration);
-protected abstract IEnumerable<TestAppSettings> GetTestAppSettings();
-protected abstract ValueTask DisposeAsyncCore();
+```
+
+Everything else is a virtual method with a sensible default, overridden only when needed:
+
+```csharp
+protected virtual IEnumerable<TestAppSettings> GetTestAppSettings();  // JSON files to load; default: none
+protected virtual ValueTask InitializeAsyncCore();                    // async setup before the container is built; default: no-op
+protected virtual ValueTask DisposeAsyncCore();                       // async cleanup of fixture-owned resources; default: no-op
 ```
 
 Use `DisposeAsyncCore()` to clean up fixture-owned resources (for example, files, sockets, or external clients created by the fixture). Service cleanup for dependencies resolved from the DI container is handled by the framework during async teardown.
@@ -295,6 +300,37 @@ Also, the test class should be decorated by the following attribute:
 [CollectionDefinition("Dependency Injection")]
 ```
 
+#### Initializing fixtures asynchronously
+
+`TestBedFixture` implements xUnit.net's `IAsyncLifetime`, so a fixture can perform asynchronous setup by
+overriding `InitializeAsyncCore()`. xUnit.net awaits it once, after constructing the fixture and before the
+first test that uses it runs. Because the service container is built lazily on first use, anything produced
+during initialization is available to `AddServices`:
+
+```csharp
+public sealed class DatabaseFixture : TestBedFixture
+{
+    private PostgreSqlContainer _database = null!;
+
+    protected override async ValueTask InitializeAsyncCore()
+    {
+        _database = new PostgreSqlBuilder().Build();
+        await _database.StartAsync();                      // runs first
+    }
+
+    protected override void AddServices(IServiceCollection services, IConfiguration? configuration)
+        => services.AddSingleton(
+            new DbOptions(_database.GetConnectionString()));  // then this
+
+    protected override ValueTask DisposeAsyncCore()
+        => _database.DisposeAsync();
+}
+```
+
+The container does not exist yet while `InitializeAsyncCore` runs, so services cannot be resolved from
+within it - use it to prepare the inputs that `AddServices` registers. For a full working example, see
+`AsyncInitTests` and `Fixtures/AsyncInitFixture.cs` in the examples project.
+
 #### Clearing managed resources
 
 To have managed resources cleaned up, simply override the virtual method of `Clear()`. This is an optional step.
@@ -303,7 +339,8 @@ To have managed resources cleaned up, simply override the virtual method of `Cle
 
 `TestBedFixture` performs async teardown and disposes the DI `ServiceProvider` asynchronously. This ensures container-managed services implementing `IAsyncDisposable` are disposed correctly during fixture teardown.
 
-If you need additional async cleanup for fixture-owned resources, override `DisposeAsyncCore()`:
+If you need additional async cleanup for fixture-owned resources, override `DisposeAsyncCore()`.
+As of 10.1.0 it is `virtual` with a no-op default, so fixtures with nothing to clean up no longer need an empty override:
 
 ```csharp
 public sealed class MyTestFixture : TestBedFixture
@@ -435,8 +472,6 @@ public class MyFixture : TestBedFixture, INotifyTestClassLifecycleAsync
 
     protected override void AddServices(IServiceCollection services, IConfiguration configuration)
         => services.AddSingleton<IMyService, MyService>();
-
-    protected override ValueTask DisposeAsyncCore() => new();
 }
 ```
 
@@ -514,6 +549,7 @@ public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 * **Advanced patterns**: See `AdvancedDependencyInjectionTests.cs` for `IOptions<T>`, `Func<T>`, and `Action<T>` examples
 * **xUnit.net v4 lifecycle hooks**: See `Fixtures/LifecycleAwareFixture.cs` and `LifecycleNotificationTests.cs` for a fixture that reacts to test class start and finish
 * **Parallel-safe fixtures**: See `ParallelFixtureAccessTests.cs` for the concurrency guarantees of `TestBedFixture`
+* **Async initialization**: See `AsyncInitTests.cs` and `Fixtures/AsyncInitFixture.cs` for async fixture setup via `InitializeAsyncCore`
 
 🏢 [Digital Silo](https://digitalsilo.io/)'s unit tests and integration tests are using this library in production.
 
