@@ -61,16 +61,46 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable, IAsyncLife
 			}
 			if (!_servicesAdded)
 			{
-				AddUserSecrets(ConfigurationBuilder);
 				Configuration = GetConfigurationRoot();
 				AddServices(_services, Configuration);
-				_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper)));
+				_services.AddLogging(loggingBuilder => AddLoggingProvider(loggingBuilder, new OutputLoggerProvider(testOutputHelper, followCurrentTest: true)));
 				_services.AddOptions();
 				_servicesAdded = true;
 			}
-			return _serviceProvider = _services.BuildServiceProvider();
+			var serviceProviderOptions = GetServiceProviderOptions();
+			return _serviceProvider = serviceProviderOptions is null
+				? _services.BuildServiceProvider()
+				: _services.BuildServiceProvider(serviceProviderOptions);
 		}
 	}
+
+	/// <summary>
+	/// Builds (lazily) and returns the root <see cref="ServiceProvider"/>, as
+	/// <see cref="GetServiceProvider(ITestOutputHelper)"/> does, without requiring a test output helper.
+	/// Loggers created by the container write to the output of whichever test is running when they log.
+	/// </summary>
+	public ServiceProvider GetServiceProvider()
+		=> GetServiceProvider(TestContext.Current.TestOutputHelper ?? NullTestOutputHelper.Instance);
+
+	/// <summary>
+	/// Resolves a service of type <typeparamref name="T"/> from the root provider.
+	/// </summary>
+	public T? GetService<T>()
+		=> GetServiceProvider().GetService<T>();
+
+	/// <summary>
+	/// Resolves a keyed service of type <typeparamref name="T"/> from the root provider.
+	/// </summary>
+	/// <param name="key">The key identifying the registration.</param>
+	public T? GetKeyedService<T>([DisallowNull] string key)
+		=> GetServiceProvider().GetKeyedService<T>(key);
+
+	/// <summary>
+	/// Creates and returns a new asynchronous service scope.
+	/// Caller is responsible for disposing the returned <see cref="AsyncServiceScope"/>.
+	/// </summary>
+	public AsyncServiceScope GetAsyncScope()
+		=> GetServiceProvider().CreateAsyncScope();
 
 	/// <summary>
 	/// Resolves a scoped service of type <typeparamref name="T"/> using a new scope.
@@ -182,17 +212,51 @@ public abstract class TestBedFixture : IDisposable, IAsyncDisposable, IAsyncLife
 	/// </summary>
 	protected virtual void AddUserSecrets(IConfigurationBuilder configurationBuilder) { }
 
+	/// <summary>
+	/// Controls the order in which configuration sources are added, and therefore which one wins
+	/// when the same key appears in more than one.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// When <see langword="false"/> (the default in 10.x) the order is user secrets, then the JSON files
+	/// from <see cref="GetTestAppSettings"/>, then environment variables, so a value in a JSON file
+	/// overrides the same key in user secrets.
+	/// </para>
+	/// <para>
+	/// Override and return <see langword="true"/> to use the standard .NET order: JSON files, then user
+	/// secrets, then environment variables, so user secrets override the JSON files.
+	/// The standard order is planned to become the default in version 11.0.
+	/// </para>
+	/// </remarks>
+	protected virtual bool UseStandardConfigurationPrecedence => false;
+
+	/// <summary>
+	/// Override to supply the <see cref="ServiceProviderOptions"/> used when the container is built,
+	/// for example to set <see cref="ServiceProviderOptions.ValidateScopes"/> so that resolving a scoped
+	/// service from the root provider throws, or <see cref="ServiceProviderOptions.ValidateOnBuild"/> so
+	/// that missing dependencies are reported when the container is built rather than on first use.
+	/// </summary>
+	/// <returns>
+	/// The options to build the container with, or <see langword="null"/> (the default) to use the
+	/// container's defaults, under which neither validation is performed.
+	/// </returns>
+	protected virtual ServiceProviderOptions? GetServiceProviderOptions() => null;
+
 	private IConfigurationRoot GetConfigurationRoot()
 	{
-		var testAppSettings = GetTestAppSettings();
-		return GetConfigurationRoot(testAppSettings);
-	}
-
-	private IConfigurationRoot GetConfigurationRoot(IEnumerable<TestAppSettings> configurationFiles)
-	{
-		foreach (var configurationFile in configurationFiles.Where(appSetting => !string.IsNullOrEmpty(appSetting.Filename)))
+		var useStandardPrecedence = UseStandardConfigurationPrecedence;
+		if (!useStandardPrecedence)
+		{
+			// Same hook order as before 10.2: user secrets first, then the JSON files, then environment variables.
+			AddUserSecrets(ConfigurationBuilder);
+		}
+		foreach (var configurationFile in GetTestAppSettings().Where(appSetting => !string.IsNullOrEmpty(appSetting.Filename)))
 		{
 			ConfigurationBuilder.AddJsonFile(configurationFile.Filename!, optional: configurationFile.IsOptional);
+		}
+		if (useStandardPrecedence)
+		{
+			AddUserSecrets(ConfigurationBuilder);
 		}
 		ConfigurationBuilder.AddEnvironmentVariables();
 		return ConfigurationBuilder.Build();

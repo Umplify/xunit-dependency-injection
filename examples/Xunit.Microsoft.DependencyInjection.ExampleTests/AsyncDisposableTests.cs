@@ -2,7 +2,7 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 
 public class AsyncDisposableTests : TestBed<AsyncDisposableFixture>
 {
-    public AsyncDisposableTests(ITestOutputHelper testOutputHelper, AsyncDisposableFixture fixture) 
+    public AsyncDisposableTests(ITestOutputHelper testOutputHelper, AsyncDisposableFixture fixture)
         : base(testOutputHelper, fixture)
     {
     }

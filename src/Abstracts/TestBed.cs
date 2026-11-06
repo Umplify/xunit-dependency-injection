@@ -23,6 +23,25 @@ public class TestBed<TFixture>(ITestOutputHelper testOutputHelper, TFixture fixt
 	private bool _disposedAsync;
 
 	/// <summary>
+	/// Initializes the test bed with the output helper of the test that is being run, taken from
+	/// <see cref="TestContext.Current"/>, so derived test classes only need to accept the fixture.
+	/// </summary>
+	/// <param name="fixture">The fixture instance supplied by xUnit for this test class.</param>
+	/// <exception cref="InvalidOperationException">
+	/// No test output helper is available, because the instance is not being created by xUnit.net for a test.
+	/// </exception>
+	protected TestBed(TFixture fixture)
+		: this(GetCurrentTestOutputHelper(), fixture)
+	{
+	}
+
+	private static ITestOutputHelper GetCurrentTestOutputHelper()
+		=> TestContext.Current.TestOutputHelper
+			?? throw new InvalidOperationException(
+				$"No test output helper is available. Test classes using the single-argument {nameof(TestBed<>)} constructor " +
+				"must be created by xUnit.net for a running test; otherwise use the constructor that takes an ITestOutputHelper.");
+
+	/// <summary>
 	/// Releases managed resources. Override to add custom cleanup logic. Unmanaged resources
 	/// should be released only if added by derived classes.
 	/// </summary>

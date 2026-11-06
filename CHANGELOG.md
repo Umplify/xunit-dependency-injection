@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Planned as 10.2.0 (minor, no breaking changes).
+
+### Added
+- `TestBedFixture.UseStandardConfigurationPrecedence` (protected virtual, default `false`). Override and
+  return `true` to load configuration in the standard .NET order: JSON files, then user secrets, then
+  environment variables. The default keeps the 10.x order (user secrets, then JSON, then environment
+  variables), in which `appsettings.json` overrides user secrets. The standard order is planned to become
+  the default in 11.0.
+- `TestBedFixture.GetServiceProviderOptions()` (protected virtual, default `null`) to build the container
+  with `ValidateScopes` / `ValidateOnBuild`. Defaults are unchanged.
+- `TestBedFixture` overloads that need no `ITestOutputHelper`: `GetServiceProvider()`, `GetService<T>()`,
+  `GetKeyedService<T>(key)` and `GetAsyncScope()`.
+- Single-argument `TestBed<TFixture>(TFixture)` and `TestBedWithDI<TFixture>(TFixture)` constructors; the
+  output helper is taken from `TestContext.Current`.
+- `[Inject(Required = true)]`: if the service cannot be resolved, creating the test class throws an
+  `InvalidOperationException` naming the property, the service and the fixture, instead of leaving the
+  property `null`.
+- `TestPriorityOrderer` now also implements `ITestMethodOrderer`.
+
+### Fixed
+- **Logging went to the first test only.** The fixture builds its container once, so the `OutputLogger`s it
+  created were bound to the first test's `ITestOutputHelper`, and every later test lost its log output
+  without any error. Loggers created by the fixture now write to the test that is running when they log.
+  `OutputLogger` and `OutputLoggerProvider` created through their public constructors behave as before.
+- **`[TestOrder]` has been ignored since 10.1.0** (the xUnit.net v4 upgrade). v4 orders the methods of a class with an
+  `ITestMethodOrderer` and uses `[TestCaseOrderer]` only for the cases within one method, so
+  `[TestCaseOrderer(typeof(TestPriorityOrderer))]` no longer ordered methods. **Action required:** switch to
+  `[TestMethodOrderer(typeof(TestPriorityOrderer))]` (or `[TestMethodOrderer<TestPriorityOrderer>]`).
+- `TestPriorityOrderer` no longer throws when a test case's method cannot be found. It now reads the
+  attribute from the method xUnit.net has already resolved, instead of searching every loaded assembly
+  for the type.
+
 ## [10.1.0] - 2026-08-18
 
 ### Breaking Changes

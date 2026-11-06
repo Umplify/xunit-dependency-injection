@@ -14,23 +14,23 @@ public sealed record AsyncInitOptions(string ConnectionString);
 /// </summary>
 public class AsyncInitFixture : TestBedFixture
 {
-	private string? _connectionString;
-	private int _initializationCount;
+    private string? _connectionString;
+    private int _initializationCount;
 
-	public int InitializationCount => _initializationCount;
+    public int InitializationCount => _initializationCount;
 
-	protected override async ValueTask InitializeAsyncCore()
-	{
-		Interlocked.Increment(ref _initializationCount);
-		// Stands in for genuinely asynchronous work: starting a Testcontainer,
-		// seeding a database, fetching configuration from a remote source, etc.
-		await Task.Yield();
-		_connectionString = "Server=initialized-async";
-	}
+    protected override async ValueTask InitializeAsyncCore()
+    {
+        Interlocked.Increment(ref _initializationCount);
+        // Stands in for genuinely asynchronous work: starting a Testcontainer,
+        // seeding a database, fetching configuration from a remote source, etc.
+        await Task.Yield();
+        _connectionString = "Server=initialized-async";
+    }
 
-	protected override void AddServices(IServiceCollection services, IConfiguration configuration)
-		=> services.AddSingleton(new AsyncInitOptions(_connectionString
-			?? throw new InvalidOperationException("InitializeAsyncCore must complete before AddServices runs.")));
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
+        => services.AddSingleton(new AsyncInitOptions(_connectionString
+            ?? throw new InvalidOperationException("InitializeAsyncCore must complete before AddServices runs.")));
 
-	// Note: no DisposeAsyncCore override — it is virtual with a no-op default.
+    // Note: no DisposeAsyncCore override — it is virtual with a no-op default.
 }

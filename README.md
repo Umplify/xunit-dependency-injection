@@ -107,13 +107,10 @@ using Xunit.Microsoft.DependencyInjection.Abstracts;
 using Xunit.Microsoft.DependencyInjection.Attributes;
 
 [Collection("Dependency Injection")]
-public class MyTests : TestBedWithDI<MyTestFixture>
+public class MyTests(MyTestFixture fixture) : TestBedWithDI<MyTestFixture>(fixture)
 {
-    [Inject] private IMyService MyService { get; set; } = null!;
-    [Inject] private IMyScopedService MyScopedService { get; set; } = null!;
-
-    public MyTests(ITestOutputHelper testOutputHelper, MyTestFixture fixture)
-        : base(testOutputHelper, fixture) { }
+    [Inject(Required = true)] private IMyService MyService { get; set; } = null!;
+    [Inject(Required = true)] private IMyScopedService MyScopedService { get; set; } = null!;
 
     [Fact]
     public async Task TestMyService()
@@ -159,7 +156,24 @@ Everything else is a virtual method with a sensible default, overridden only whe
 protected virtual IEnumerable<TestAppSettings> GetTestAppSettings();  // JSON files to load; default: none
 protected virtual ValueTask InitializeAsyncCore();                    // async setup before the container is built; default: no-op
 protected virtual ValueTask DisposeAsyncCore();                       // async cleanup of fixture-owned resources; default: no-op
+protected virtual bool UseStandardConfigurationPrecedence { get; }    // json < user secrets < env (from 10.2); default: false
+protected virtual ServiceProviderOptions? GetServiceProviderOptions(); // container validation (from 10.2); default: null
 ```
+
+#### Validating the container
+
+Override `GetServiceProviderOptions()` to turn on the container's own checks. With `ValidateScopes`,
+resolving a scoped service from the root provider throws instead of silently creating a long-lived
+instance; with `ValidateOnBuild`, missing dependencies are reported when the container is built.
+Both are off by default.
+
+```csharp
+protected override ServiceProviderOptions? GetServiceProviderOptions()
+    => new() { ValidateScopes = true, ValidateOnBuild = true };
+```
+
+With `ValidateScopes` on, resolve scoped services through a scope (`GetAsyncScope()`) rather than
+`GetService<T>()`. See `ServiceProviderOptionsTests.cs` in the examples project.
 
 Use `DisposeAsyncCore()` to clean up fixture-owned resources (for example, files, sockets, or external clients created by the fixture). Service cleanup for dependencies resolved from the DI container is handled by the framework during async teardown.
 
@@ -175,6 +189,20 @@ Use `DisposeAsyncCore()` to clean up fixture-owned resources (for example, files
 protected override void AddUserSecrets(IConfigurationBuilder configurationBuilder); 
 ```
 
+##### Which source wins
+
+By default the fixture adds user secrets *before* the JSON files from `GetTestAppSettings()`, so a key
+in `appsettings.json` overrides the same key in user secrets; environment variables override both.
+This is the reverse of the usual .NET order. From 10.2 a fixture can opt in to the standard order -
+JSON files, then user secrets, then environment variables:
+
+```csharp
+protected override bool UseStandardConfigurationPrecedence => true;
+```
+
+The standard order is planned to become the default in 11.0. See `ConfigurationPrecedenceTests.cs`
+in the examples project.
+
 ### Access the wired up services
 
 There are two method that you can use to access the wired up service depending on your context:
@@ -188,6 +216,16 @@ To access async scopes simply call the following method in the abstract fixture 
 
 ```csharp
 public AsyncServiceScope GetAsyncScope(ITestOutputHelper testOutputHelper);
+```
+
+From 10.2 the output helper is optional. These overloads take it from the running test, and loggers
+created by the container always write to the output of the test that is running when they log:
+
+```csharp
+public ServiceProvider GetServiceProvider();
+public T? GetService<T>();
+public T? GetKeyedService<T>([DisallowNull] string key);
+public AsyncServiceScope GetAsyncScope();
 ```
 
 ### Accessing the keyed wired up services in .NET 10.0
@@ -231,6 +269,43 @@ public class PropertyInjectionTests : TestBedWithDI<TestProjectFixture>
     }
 }
 ```
+
+From 10.2 the test class only needs to accept the fixture. The output helper is taken from
+`TestContext.Current`, which xUnit.net sets before it creates the test class. The two-argument
+constructor is still available:
+
+```csharp
+public class MinimalConstructorTests(TestProjectFixture fixture) : TestBedWithDI<TestProjectFixture>(fixture)
+{
+    [Inject]
+    private ICalculator? Calculator { get; set; }
+
+    [Fact]
+    public void PropertiesAreInjected() => Assert.NotNull(Calculator);
+}
+```
+
+`TestBed<TFixture>` has the same single-argument constructor.
+
+### Required Properties
+
+By default, `[Inject]` leaves a property `null` if the service cannot be resolved, and the test
+then fails later with a `NullReferenceException`. Set `Required = true` to fail when the test class is
+created instead, with a message that names the property, the service and the fixture:
+
+```csharp
+[Inject(Required = true)]
+private ICalculator? Calculator { get; set; }
+
+[Inject("Porsche", Required = true)]
+private ICarMaker? Porsche { get; set; }
+```
+
+```
+Cannot inject required property NeedsUnregisteredService.Service: IUnregisteredService is not registered in TestProjectFixture.
+```
+
+See `RequiredInjectionTests.cs` in the examples project.
 
 ### Keyed Services with Property Injection
 
@@ -289,6 +364,12 @@ For true constructor injection into service classes, see [CONSTRUCTOR_INJECTION.
 ### Adding custom logging provider
 
 Test developers can add their own desired logger provider by overriding ```AddLoggingProvider(...)``` virtual method defined in ```TestBedFixture``` class.
+
+The logging provider that the fixture installs writes to the output of the test that is running when
+a message is logged, even though the fixture builds its container only once, during the first test
+that uses it. Before 10.2 every log went to that first test's output, so later tests showed no log
+output. An `OutputLoggerProvider` or `OutputLogger` that you construct yourself writes to the helper
+you give it.
 
 ### Preparing Xunit test classes
 
@@ -503,7 +584,7 @@ The library also has a bonus feature that simplifies running tests in order. The
 Decorate your Xunit test class with the following attribute and associate ```TestOrder(...)``` with ```Fact``` and ```Theory```:
 
 ```csharp
-[TestCaseOrderer(typeof(TestPriorityOrderer))]
+[TestMethodOrderer(typeof(TestPriorityOrderer))]
 public class MyOrderedTests
 {
     [Fact, TestOrder(1)]
@@ -517,9 +598,16 @@ public class MyOrderedTests
 On xUnit.net v4 you can use the generic form instead, which is checked at compile time:
 
 ```csharp
-[TestCaseOrderer<TestPriorityOrderer>]
+[TestMethodOrderer<TestPriorityOrderer>]
 public class MyOrderedTests { }
 ```
+
+> **Use `TestMethodOrderer`, not `TestCaseOrderer`, on xUnit.net v4.** v4 orders the methods of a class
+> with an `ITestMethodOrderer` and only uses an `ITestCaseOrderer` to order the cases *within* one
+> method (for example the rows of a `[Theory]`). A class decorated with
+> `[TestCaseOrderer(typeof(TestPriorityOrderer))]` therefore runs its methods in the default order.
+> `TestPriorityOrderer` implements both interfaces from 10.2. See `TestOrderingTests.cs` in the
+> examples project.
 
 > The string-based overload (`[TestCaseOrderer("Type.Full.Name", "AssemblyName")]`) was removed in
 > xUnit.net v3 — replace it with `typeof(...)` or the generic attribute above.

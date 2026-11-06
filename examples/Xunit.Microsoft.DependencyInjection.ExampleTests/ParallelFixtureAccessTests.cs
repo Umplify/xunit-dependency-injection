@@ -10,28 +10,28 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 /// </summary>
 public class ParallelFixtureAccessTests
 {
-	[Fact]
-	public void GetServiceProvider_ConcurrentFirstAccess_BuildsSingleProvider()
-	{
-		using var fixture = new Fixtures.TestProjectFixture();
-		var outputHelper = TestContext.Current.TestOutputHelper!;
+    [Fact]
+    public void GetServiceProvider_ConcurrentFirstAccess_BuildsSingleProvider()
+    {
+        using var fixture = new Fixtures.TestProjectFixture();
+        var outputHelper = TestContext.Current.TestOutputHelper!;
 
-		var providers = new ServiceProvider[64];
-		Parallel.For(0, providers.Length, i => providers[i] = fixture.GetServiceProvider(outputHelper));
+        var providers = new ServiceProvider[64];
+        Parallel.For(0, providers.Length, i => providers[i] = fixture.GetServiceProvider(outputHelper));
 
-		Assert.Single(providers.Distinct());
-	}
+        Assert.Single(providers.Distinct());
+    }
 
-	[Fact]
-	public void GetService_ConcurrentFirstAccess_ResolvesTheSameSingleton()
-	{
-		using var fixture = new Fixtures.TestProjectFixture();
-		var outputHelper = TestContext.Current.TestOutputHelper!;
+    [Fact]
+    public void GetService_ConcurrentFirstAccess_ResolvesTheSameSingleton()
+    {
+        using var fixture = new Fixtures.TestProjectFixture();
+        var outputHelper = TestContext.Current.TestOutputHelper!;
 
-		var singletons = new ISingletonService?[64];
-		Parallel.For(0, singletons.Length, i => singletons[i] = fixture.GetService<ISingletonService>(outputHelper));
+        var singletons = new ISingletonService?[64];
+        Parallel.For(0, singletons.Length, i => singletons[i] = fixture.GetService<ISingletonService>(outputHelper));
 
-		Assert.All(singletons, singleton => Assert.NotNull(singleton));
-		Assert.Single(singletons.Distinct());
-	}
+        Assert.All(singletons, singleton => Assert.NotNull(singleton));
+        Assert.Single(singletons.Distinct());
+    }
 }

@@ -2,7 +2,7 @@ using Xunit.Microsoft.DependencyInjection.TestsOrder;
 
 namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 
-[TestCaseOrderer(typeof(TestPriorityOrderer))]
+[TestMethodOrderer(typeof(TestPriorityOrderer))]
 public class UnitTests
 {
     [Fact, TestOrder(1)]

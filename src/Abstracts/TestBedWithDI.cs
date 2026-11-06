@@ -21,6 +21,19 @@ public abstract class TestBedWithDI<TFixture> : TestBed<TFixture>
 		InjectDependencies();
 
 	/// <summary>
+	/// Initializes the test bed with the output helper of the test that is being run, taken from
+	/// <see cref="TestContext.Current"/>, and performs property injection for members marked with
+	/// <see cref="InjectAttribute"/>. Derived test classes only need to accept the fixture.
+	/// </summary>
+	/// <param name="fixture">The fixture instance supplying services.</param>
+	/// <exception cref="InvalidOperationException">
+	/// No test output helper is available, because the instance is not being created by xUnit.net for a test.
+	/// </exception>
+	protected TestBedWithDI(TFixture fixture)
+		: base(fixture) =>
+		InjectDependencies();
+
+	/// <summary>
 	/// Injects dependencies into properties marked with [Inject] attribute or constructor parameters
 	/// </summary>
 	private void InjectDependencies()
@@ -41,12 +54,43 @@ public abstract class TestBedWithDI<TFixture> : TestBed<TFixture>
 
 		foreach (var property in injectableProperties)
 		{
-			var service = ResolveService(property.PropertyType, property.GetCustomAttribute<InjectAttribute>()?.Key);
+			var injectAttribute = property.GetCustomAttribute<InjectAttribute>()!;
+			var service = injectAttribute.Required
+				? ResolveRequiredService(property, injectAttribute.Key)
+				: ResolveService(property.PropertyType, injectAttribute.Key);
 			if (service != null)
 			{
 				property.SetValue(this, service);
 			}
 		}
+	}
+
+	private object ResolveRequiredService(PropertyInfo property, string? key)
+	{
+		var target = $"Cannot inject required property {property.DeclaringType?.Name}.{property.Name}";
+		var service = string.IsNullOrEmpty(key)
+			? property.PropertyType.Name
+			: $"{property.PropertyType.Name} with key \"{key}\"";
+		object? resolved;
+		try
+		{
+			resolved = ResolveServiceCore(property.PropertyType, key);
+		}
+		catch (Exception exception)
+		{
+			throw new InvalidOperationException(
+				$"{target}: resolving {service} from {typeof(TFixture).Name} failed. {exception.Message}", exception);
+		}
+		return resolved ?? throw new InvalidOperationException(
+			$"{target}: {service} is not registered in {typeof(TFixture).Name}.");
+	}
+
+	private object? ResolveServiceCore(Type serviceType, string? key)
+	{
+		var serviceProvider = _fixture.GetServiceProvider(_testOutputHelper);
+		return string.IsNullOrEmpty(key)
+			? serviceProvider.GetService(serviceType)
+			: ((IKeyedServiceProvider)serviceProvider).GetKeyedService(serviceType, key);
 	}
 
 	/// <summary>
@@ -59,22 +103,7 @@ public abstract class TestBedWithDI<TFixture> : TestBed<TFixture>
 	{
 		try
 		{
-			var serviceProvider = _fixture.GetServiceProvider(_testOutputHelper);
-
-			if (!string.IsNullOrEmpty(key))
-			{
-				// Try to resolve keyed service
-				var keyedServiceMethod = typeof(ServiceProviderKeyedServiceExtensions)
-					.GetMethod(nameof(ServiceProviderKeyedServiceExtensions.GetKeyedService), [typeof(IServiceProvider), typeof(object)])
-					?.MakeGenericMethod(serviceType);
-
-				return keyedServiceMethod?.Invoke(null, [serviceProvider, key]);
-			}
-			else
-			{
-				// Resolve regular service
-				return serviceProvider.GetService(serviceType);
-			}
+			return ResolveServiceCore(serviceType, key);
 		}
 		catch
 		{

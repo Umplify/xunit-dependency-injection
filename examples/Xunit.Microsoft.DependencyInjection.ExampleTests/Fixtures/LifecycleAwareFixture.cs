@@ -10,32 +10,32 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Fixtures;
 /// </summary>
 public class LifecycleAwareFixture : TestBedFixture, INotifyTestClassLifecycleAsync
 {
-	private readonly List<string> _startedClasses = [];
-	private readonly List<string> _finishedClasses = [];
+    private readonly List<string> _startedClasses = [];
+    private readonly List<string> _finishedClasses = [];
 
-	public IReadOnlyList<string> StartedClasses => _startedClasses;
+    public IReadOnlyList<string> StartedClasses => _startedClasses;
 
-	public IReadOnlyList<string> FinishedClasses => _finishedClasses;
+    public IReadOnlyList<string> FinishedClasses => _finishedClasses;
 
-	public ValueTask OnTestClassStartingAsync(IXunitTestClass testClass)
-	{
-		_startedClasses.Add(testClass.TestClassSimpleName);
-		return default;
-	}
+    public ValueTask OnTestClassStartingAsync(IXunitTestClass testClass)
+    {
+        _startedClasses.Add(testClass.TestClassSimpleName);
+        return default;
+    }
 
-	public ValueTask OnTestClassFinishedAsync(IXunitTestClass testClass)
-	{
-		_finishedClasses.Add(testClass.TestClassSimpleName);
-		return default;
-	}
+    public ValueTask OnTestClassFinishedAsync(IXunitTestClass testClass)
+    {
+        _finishedClasses.Add(testClass.TestClassSimpleName);
+        return default;
+    }
 
-	protected override void AddServices(IServiceCollection services, IConfiguration configuration)
-		=> services
-			.AddSingleton<ICalculator, Calculator>()
-			.Configure<Options>(config => configuration.GetSection("Options").Bind(config));
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
+        => services
+            .AddSingleton<ICalculator, Calculator>()
+            .Configure<Options>(config => configuration.GetSection("Options").Bind(config));
 
-	protected override IEnumerable<TestAppSettings> GetTestAppSettings()
-	{
-		yield return new() { Filename = "appsettings.json", IsOptional = false };
-	}
+    protected override IEnumerable<TestAppSettings> GetTestAppSettings()
+    {
+        yield return new() { Filename = "appsettings.json", IsOptional = false };
+    }
 }
