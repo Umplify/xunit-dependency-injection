@@ -7,22 +7,22 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 /// </summary>
 public class LifecycleNotificationTests : TestBedWithDI<LifecycleAwareFixture>
 {
-	private readonly LifecycleAwareFixture _lifecycleFixture;
+    private readonly LifecycleAwareFixture _lifecycleFixture;
 
-	public LifecycleNotificationTests(ITestOutputHelper testOutputHelper, LifecycleAwareFixture fixture)
-		: base(testOutputHelper, fixture) => _lifecycleFixture = fixture;
+    public LifecycleNotificationTests(ITestOutputHelper testOutputHelper, LifecycleAwareFixture fixture)
+        : base(testOutputHelper, fixture) => _lifecycleFixture = fixture;
 
-	[Inject]
-	private ICalculator? Calculator { get; set; }
+    [Inject]
+    private ICalculator? Calculator { get; set; }
 
-	[Fact]
-	public void FixtureIsNotifiedThatTheTestClassStarted()
-		=> Assert.Contains(nameof(LifecycleNotificationTests), _lifecycleFixture.StartedClasses);
+    [Fact]
+    public void FixtureIsNotifiedThatTheTestClassStarted()
+        => Assert.Contains(nameof(LifecycleNotificationTests), _lifecycleFixture.StartedClasses);
 
-	[Fact]
-	public async Task FixtureStillResolvesServicesNormally()
-	{
-		Assert.NotNull(Calculator);
-		Assert.Equal(40, await Calculator.AddAsync(2, 2));
-	}
+    [Fact]
+    public async Task FixtureStillResolvesServicesNormally()
+    {
+        Assert.NotNull(Calculator);
+        Assert.Equal(40, await Calculator.AddAsync(2, 2));
+    }
 }

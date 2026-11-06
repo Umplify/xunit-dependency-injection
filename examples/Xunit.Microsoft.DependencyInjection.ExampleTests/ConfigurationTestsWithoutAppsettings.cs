@@ -4,13 +4,13 @@ public class ConfigurationTestsWithoutAppsettings : TestBed<TestProjectFixtureWi
 {
     private const string Key = "CONFIG_KEY";
     private const string Value = "Value";
-    
-    public ConfigurationTestsWithoutAppsettings(ITestOutputHelper testOutputHelper, TestProjectFixtureWithoutAppsettings fixture) 
+
+    public ConfigurationTestsWithoutAppsettings(ITestOutputHelper testOutputHelper, TestProjectFixtureWithoutAppsettings fixture)
         : base(testOutputHelper, fixture)
     {
         Environment.SetEnvironmentVariable(Key, Value);
     }
-    
+
     [Fact]
     public void EnvironmentVariablesViaConstructorAreAvailable()
     {

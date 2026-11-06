@@ -4,13 +4,13 @@ public class ConfigurationTests : TestBed<TestProjectFixture>
 {
     private const string Key = "CONFIG_KEY";
     private const string Value = "Value";
-    
-    public ConfigurationTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture) 
+
+    public ConfigurationTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture)
         : base(testOutputHelper, fixture)
     {
         Environment.SetEnvironmentVariable(Key, Value);
     }
-    
+
     [Fact]
     public void EnvironmentVariablesViaConstructorAreAvailable()
     {

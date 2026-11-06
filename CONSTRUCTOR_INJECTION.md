@@ -44,6 +44,36 @@ public class PropertyInjectionTests : TestBedWithDI<TestProjectFixture>
 }
 ```
 
+### Accepting Only the Fixture (10.2+)
+
+The output helper parameter is optional. `TestBedWithDI<TFixture>(TFixture fixture)` takes it from
+`TestContext.Current`:
+
+```csharp
+public class MinimalConstructorTests(TestProjectFixture fixture) : TestBedWithDI<TestProjectFixture>(fixture)
+{
+    [Inject]
+    private ICalculator? Calculator { get; set; }
+
+    [Fact]
+    public void PropertiesAreInjected() => Assert.NotNull(Calculator);
+}
+```
+
+### Required Properties (10.2+)
+
+An `[Inject]` property whose service cannot be resolved is left `null`. With `Required = true`,
+creating the test class throws an `InvalidOperationException` that names the property, the service
+type and the fixture:
+
+```csharp
+[Inject(Required = true)]
+private ICalculator? Calculator { get; set; }
+
+[Inject("Porsche", Required = true)]
+private ICarMaker? Porsche { get; set; }
+```
+
 ### Keyed Services
 
 Use the `[Inject("key")]` attribute for keyed services:

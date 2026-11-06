@@ -7,28 +7,28 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests;
 /// initialization are available to <c>AddServices</c>.
 /// </summary>
 public class AsyncInitTests(ITestOutputHelper testOutputHelper, AsyncInitFixture fixture)
-	: TestBed<AsyncInitFixture>(testOutputHelper, fixture)
+    : TestBed<AsyncInitFixture>(testOutputHelper, fixture)
 {
-	[Fact]
-	public void ValueProducedDuringInitializationIsRegisteredInTheContainer()
-	{
-		var options = _fixture.GetService<AsyncInitOptions>(_testOutputHelper);
+    [Fact]
+    public void ValueProducedDuringInitializationIsRegisteredInTheContainer()
+    {
+        var options = _fixture.GetService<AsyncInitOptions>(_testOutputHelper);
 
-		Assert.NotNull(options);
-		Assert.Equal("Server=initialized-async", options.ConnectionString);
-	}
+        Assert.NotNull(options);
+        Assert.Equal("Server=initialized-async", options.ConnectionString);
+    }
 
-	[Fact]
-	public void FixtureIsInitializedExactlyOnce()
-	{
-		// Force the container to build before asserting, so this holds
-		// regardless of which test in the class runs first.
-		_ = _fixture.GetService<AsyncInitOptions>(_testOutputHelper);
+    [Fact]
+    public void FixtureIsInitializedExactlyOnce()
+    {
+        // Force the container to build before asserting, so this holds
+        // regardless of which test in the class runs first.
+        _ = _fixture.GetService<AsyncInitOptions>(_testOutputHelper);
 
-		Assert.Equal(1, _fixture.InitializationCount);
-	}
+        Assert.Equal(1, _fixture.InitializationCount);
+    }
 
-	[Fact]
-	public void InitializationDoesNotRepeatForTestsSharingTheFixture()
-		=> Assert.Equal(1, _fixture.InitializationCount);
+    [Fact]
+    public void InitializationDoesNotRepeatForTestsSharingTheFixture()
+        => Assert.Equal(1, _fixture.InitializationCount);
 }

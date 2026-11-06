@@ -2,7 +2,7 @@
 
 public class TestProjectFixtureWithoutAppsettings : TestBedFixture
 {
-  protected override void AddServices(IServiceCollection services, IConfiguration configuration)
-  {
-  }
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
+    {
+    }
 }

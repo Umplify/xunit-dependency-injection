@@ -12,6 +12,14 @@ public sealed class InjectAttribute : Attribute
 	public string? Key { get; init; }
 
 	/// <summary>
+	/// When <see langword="true"/>, constructing the test class fails with an
+	/// <see cref="InvalidOperationException"/> naming the property, the service type and the fixture
+	/// if the service cannot be resolved. When <see langword="false"/> (the default) the property is
+	/// left <see langword="null"/>.
+	/// </summary>
+	public bool Required { get; init; }
+
+	/// <summary>
 	/// Initializes a new instance of the InjectAttribute
 	/// </summary>
 	public InjectAttribute() { }

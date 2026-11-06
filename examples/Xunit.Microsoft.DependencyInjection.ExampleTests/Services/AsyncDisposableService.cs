@@ -5,21 +5,21 @@ namespace Xunit.Microsoft.DependencyInjection.ExampleTests.Services;
 /// </summary>
 public class AsyncDisposableService : IDisposable, IAsyncDisposable
 {
-  private bool _disposedAsync;
+    private bool _disposedAsync;
 
-  public ValueTask DisposeAsync()
-  {
-    _disposedAsync = true;
-    GC.SuppressFinalize(this);
-
-    return ValueTask.CompletedTask;
-  }
-
-  public void Dispose()
-  {
-    if (!_disposedAsync)
+    public ValueTask DisposeAsync()
     {
-      throw new Exception("The AsyncDisposable service has NOT been disposed asynchronously.");
+        _disposedAsync = true;
+        GC.SuppressFinalize(this);
+
+        return ValueTask.CompletedTask;
     }
-  }
+
+    public void Dispose()
+    {
+        if (!_disposedAsync)
+        {
+            throw new Exception("The AsyncDisposable service has NOT been disposed asynchronously.");
+        }
+    }
 }

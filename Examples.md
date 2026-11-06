@@ -160,6 +160,10 @@ public class CalculatorTests : TestBed<TestProjectFixture>
 - `_fixture.GetKeyedService<T>("key", _testOutputHelper)` - Gets a keyed service instance
 - `_fixture.GetAsyncScope(_testOutputHelper)` - Gets an async service scope
 
+From 10.2, each of these except `GetScopedService` also has an overload without the output helper,
+for example `_fixture.GetService<T>()`. The helper is taken from the running test. The examples are in
+`MinimalConstructorTests.cs`.
+
 ## Property Injection (Recommended)
 
 **New in version 9.2.0+**: Clean, declarative syntax using property injection with the `[Inject]` attribute:
@@ -254,6 +258,57 @@ public class PropertyInjectionTests : TestBedWithDI<TestProjectFixture>
 - `GetService<T>()` - Gets a service instance (no `_testOutputHelper` parameter needed)
 - `GetScopedService<T>()` - Gets a scoped service instance
 - `GetKeyedService<T>("key")` - Gets a keyed service instance
+
+### Single-Argument Constructor (10.2+)
+
+The test class can accept only the fixture. The output helper is taken from `TestContext.Current`
+(see `MinimalConstructorTests.cs`):
+
+```csharp
+public class MinimalConstructorTests(TestProjectFixture fixture) : TestBedWithDI<TestProjectFixture>(fixture)
+{
+    [Inject]
+    private ICalculator? Calculator { get; set; }
+
+    [Fact]
+    public void PropertiesAreInjected() => Assert.NotNull(Calculator);
+
+    [Fact]
+    public void OutputHelperComesFromTheCurrentTest()
+        => Assert.Same(TestContext.Current.TestOutputHelper, _testOutputHelper);
+}
+```
+
+### Required Injection (10.2+)
+
+`[Inject(Required = true)]` makes test-class construction fail with a clear message instead of
+leaving the property `null` (see `RequiredInjectionTests.cs`):
+
+```csharp
+public class RequiredInjectionTests(TestProjectFixture fixture) : TestBedWithDI<TestProjectFixture>(fixture)
+{
+    [Inject(Required = true)]
+    private ICalculator? Calculator { get; set; }
+
+    [Inject("Porsche", Required = true)]
+    private ICarMaker? Porsche { get; set; }
+
+    [Fact]
+    public void MissingRequiredServiceThrowsWithAClearMessage()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(() => new NeedsUnregisteredService(_fixture));
+
+        Assert.Contains(nameof(IUnregisteredService), exception.Message);
+        Assert.Contains(nameof(TestProjectFixture), exception.Message);
+    }
+
+    public class NeedsUnregisteredService(TestProjectFixture fixture) : TestBedWithDI<TestProjectFixture>(fixture)
+    {
+        [Inject(Required = true)]
+        public IUnregisteredService? Service { get; set; }
+    }
+}
+```
 
 ## Keyed Services
 
@@ -420,6 +475,37 @@ protected override IEnumerable<TestAppSettings> GetTestAppSettings()
 
 protected override void AddUserSecrets(IConfigurationBuilder configurationBuilder)
     => configurationBuilder.AddUserSecrets<TestProjectFixture>();
+```
+
+### Configuration Precedence (10.2+)
+
+By default, user secrets are added before the JSON files, so `appsettings.json` wins over user secrets.
+Opt in to the standard .NET order (JSON, then user secrets, then environment variables) per fixture.
+`ConfigurationPrecedenceTests.cs` shows both orders, using an in-memory source in place of user secrets:
+
+```csharp
+public class StandardConfigurationPrecedenceFixture : ConfigurationPrecedenceFixtureBase
+{
+    protected override bool UseStandardConfigurationPrecedence => true;
+}
+```
+
+The standard order is planned to become the default in 11.0.
+
+### Validating the Container (10.2+)
+
+Override `GetServiceProviderOptions()` to turn on scope and build-time validation
+(see `ServiceProviderOptionsTests.cs`):
+
+```csharp
+public class ValidatingFixture : TestBedFixture
+{
+    protected override void AddServices(IServiceCollection services, IConfiguration configuration)
+        => services.AddScoped<IScopedService, ScopedService>();
+
+    protected override ServiceProviderOptions? GetServiceProviderOptions()
+        => new() { ValidateScopes = true, ValidateOnBuild = true };
+}
 ```
 
 ### Using Configuration in Tests
@@ -599,40 +685,29 @@ public class SingletonServiceTests : TestBed<TestProjectFixture>
 The library provides a bonus feature for running tests in order:
 
 ```csharp
-[TestCaseOrderer(typeof(TestPriorityOrderer))]   // or [TestCaseOrderer<TestPriorityOrderer>] on xUnit.net v4
-public class UnitTests : TestBed<TestProjectFixture>
+[TestMethodOrderer(typeof(TestPriorityOrderer))]   // or [TestMethodOrderer<TestPriorityOrderer>]
+public class TestOrderingTests
 {
-    public UnitTests(ITestOutputHelper testOutputHelper, TestProjectFixture fixture) 
-        : base(testOutputHelper, fixture)
-    {
-    }
+    private static readonly List<string> s_executed = [];
 
-    [Fact, TestOrder(1)]
-    public async Task Test1()
+    [Fact, TestOrder(3)]
+    public void A_RunsThird()
     {
-        var calculator = _fixture.GetService<ICalculator>(_testOutputHelper)!;
-        var result = await calculator.AddAsync(1, 2);
-        Assert.True(result > 0);
+        s_executed.Add(nameof(A_RunsThird));
+        Assert.Equal([nameof(C_RunsFirst), nameof(B_RunsSecond), nameof(A_RunsThird)], s_executed);
     }
 
     [Fact, TestOrder(2)]
-    public async Task Test2()
-    {
-        var calculator = _fixture.GetService<ICalculator>(_testOutputHelper)!;
-        var result = await calculator.AddAsync(3, 4);
-        Assert.True(result > 0);
-    }
+    public void B_RunsSecond() => s_executed.Add(nameof(B_RunsSecond));
 
-    [Theory, TestOrder(3)]
-    [InlineData(5, 6)]
-    public async Task Test3(int x, int y)
-    {
-        var calculator = _fixture.GetService<ICalculator>(_testOutputHelper)!;
-        var result = await calculator.AddAsync(x, y);
-        Assert.True(result > 0);
-    }
+    [Fact, TestOrder(1)]
+    public void C_RunsFirst() => s_executed.Add(nameof(C_RunsFirst));
 }
 ```
+
+On xUnit.net v4 the orderer must be applied with `[TestMethodOrderer]`. v4 uses `[TestCaseOrderer]`
+only to order the cases within a single method, so `[TestCaseOrderer(typeof(TestPriorityOrderer))]` on a
+class no longer changes the order of its methods. `TestOrderingTests.cs` checks the order of execution.
 
 ## Asynchronous Fixture Initialization
 

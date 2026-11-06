@@ -4,67 +4,44 @@ using Xunit.v3;
 namespace Xunit.Microsoft.DependencyInjection.TestsOrder;
 
 /// <summary>
-/// Orders test cases by the value specified in <see cref="Attributes.TestOrderAttribute"/>.
+/// Orders tests by the value specified in <see cref="Attributes.TestOrderAttribute"/>.
 /// Tests with equal priority are then ordered alphabetically by method name for determinism.
 /// </summary>
-public class TestPriorityOrderer : ITestCaseOrderer
+/// <remarks>
+/// xUnit.net v4 orders the methods of a class and the test cases of a method separately.
+/// To run the methods of a class in priority order, apply this type as a method orderer:
+/// <c>[TestMethodOrderer(typeof(TestPriorityOrderer))]</c>. Applied only as a case orderer
+/// (<c>[TestCaseOrderer(typeof(TestPriorityOrderer))]</c>) it orders the cases within each method,
+/// which does not change the order in which the methods run.
+/// </remarks>
+public class TestPriorityOrderer : ITestCaseOrderer, ITestMethodOrderer
 {
 	/// <summary>
 	/// Orders the provided test cases based on <see cref="Attributes.TestOrderAttribute"/>.
 	/// </summary>
 	public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 		where TTestCase : ITestCase
-	{
-		var sortedMethods = new SortedDictionary<int, List<TTestCase>>();
-
-		foreach (var testCase in testCases)
-		{
-			var priority = 0;
-			var testMethod = testCase.TestMethod;
-			var type = Type.GetType(testMethod?.TestClass.TestClassNamespace ?? string.Empty) ?? AppDomain.CurrentDomain
-					.GetAssemblies()
-					.Select(a => a.GetType(testMethod?.TestClass?.TestClassName ?? string.Empty))
-					.FirstOrDefault(t => t != null);
-			var method = type?.GetMethod(testMethod?.MethodName ?? string.Empty);
-			var attributes = method?.GetCustomAttributes(typeof(TestOrderAttribute));
-			foreach (var attr in attributes!)
-			{
-				if (attr is TestOrderAttribute orderAttr)
-				{
-					priority = orderAttr.Priority;
-				}
-			}
-
-			GetOrCreate(sortedMethods, priority).Add(testCase);
-		}
-
-		var testCaseCollection = new List<TTestCase>();
-		foreach (var list in sortedMethods.Keys.Select(priority => sortedMethods[priority]))
-		{
-			list.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.MethodName, y.TestMethod?.MethodName));
-			foreach (var testCase in list)
-			{
-				testCaseCollection.Add(testCase);
-			}
-		}
-
-		return testCaseCollection.AsReadOnly();
-	}
+		=> testCases
+			.OrderBy(testCase => GetPriority(testCase is IXunitTestCase xunitTestCase ? xunitTestCase.TestMethod : null))
+			.ThenBy(testCase => testCase.TestMethod?.MethodName, StringComparer.OrdinalIgnoreCase)
+			.ToList()
+			.AsReadOnly();
 
 	/// <summary>
-	/// Returns the existing value for the key or creates and inserts a new instance.
+	/// Orders the test methods of a class based on <see cref="Attributes.TestOrderAttribute"/>.
 	/// </summary>
-	private TValue GetOrCreate<TKey, TValue>(IDictionary<TKey, TValue> dictionary, TKey key)
-		where TValue : new()
-	{
-		if (dictionary.TryGetValue(key, out var result))
-		{
-			return result;
-		}
+	public IReadOnlyCollection<TTestMethod?> OrderTestMethods<TTestMethod>(IReadOnlyCollection<TTestMethod?> testMethods)
+		where TTestMethod : ITestMethod
+		=> testMethods
+			.OrderBy(testMethod => GetPriority(testMethod as IXunitTestMethod))
+			.ThenBy(testMethod => testMethod?.MethodName, StringComparer.OrdinalIgnoreCase)
+			.ToList()
+			.AsReadOnly();
 
-		result = new TValue();
-		dictionary[key] = result;
-
-		return result;
-	}
+	/// <summary>
+	/// Reads the <see cref="TestOrderAttribute"/> priority from the method xUnit.net already resolved.
+	/// Tests without one (for example ones produced by a different test framework) get the default priority of 0.
+	/// </summary>
+	private static int GetPriority(IXunitTestMethod? testMethod)
+		=> testMethod?.Method?.GetCustomAttribute<TestOrderAttribute>()?.Priority ?? 0;
 }
