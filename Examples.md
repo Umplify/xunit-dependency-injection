@@ -755,7 +755,7 @@ no-ops by default. The full example lives in `Fixtures/AsyncInitFixture.cs` and 
 
 ## xUnit.net v4 Features
 
-These examples target `xunit.v3` 4.0.0 and Xunit.Microsoft.DependencyInjection 10.1.0 or later. Remember that
+These examples target `xunit.v3` 4.0.0 and Xunit.Microsoft.DependencyInjection 10.2.0 or later. Remember that
 v4 runs on Microsoft Testing Platform, so your repository needs a `global.json` containing:
 
 ```json
