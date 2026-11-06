@@ -70,7 +70,7 @@ dotnet add package Xunit.Microsoft.DependencyInjection
 
 #### PackageReference (in your .csproj file)
 ```xml
-<PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="10.1.0" />
+<PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="10.2.0" />
 ```
 
 **✨ That's it!** All required Microsoft.Extensions dependencies are now automatically included with the package, so you don't need to manually add them to your test project.
