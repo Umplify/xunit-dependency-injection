@@ -1,6 +1,6 @@
 variables:
-  Major: 10
-  Minor: 2
+  Major: 11
+  Minor: 0
   Revision: 0
   BuildConfiguration: Release
 
