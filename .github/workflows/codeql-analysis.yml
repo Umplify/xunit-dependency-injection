@@ -38,6 +38,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    # The hosted runner image may not carry the .NET 11 SDK yet, and the projects target net11.0.
+    - name: Setup .NET 11 SDK
+      uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+      with:
+        dotnet-version: '11.0.x'
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1

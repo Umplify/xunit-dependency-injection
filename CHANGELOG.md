@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.0] - 2026-11-20
+
+Major release: retargets the library to .NET 11. The public API is unchanged.
+
+### Breaking Changes
+- **Upgraded to .NET 11.0.** This version targets `net11.0` exclusively. Projects on `net10.0` stay on
+  10.x (#377).
+- The package no longer declares dependencies on `Microsoft.Extensions.DependencyInjection.Abstractions`
+  and `Microsoft.Extensions.Options`. Both ship in the .NET 11 shared framework (`Microsoft.NETCore.App`),
+  so every `net11.0` project already has them and NuGet flags explicit references as redundant (NU1510).
+
+### Changed
+- Updated all Microsoft.Extensions.* packages from 10.0.11 to 11.0.0
+- Updated `Microsoft.SourceLink.GitHub` from 10.0.400 to 11.0.100
+- Azure Pipelines now use the .NET 11.0.100 SDK
+- The CodeQL workflow installs the .NET 11 SDK with `actions/setup-dotnet`
+- `xunit.v3` 4.0.0, `Microsoft.NET.Test.Sdk` and the Microsoft Testing Platform extensions are unchanged;
+  they already support `net11.0`
+
+### Migration Guide
+This release requires .NET 11; stay on 10.x for .NET 10.
+
+To migrate from version 10.x to 11.0.0:
+1. Install the .NET 11.0 SDK on your development machine
+2. Update your project's `TargetFramework` to `net11.0`
+3. Update package reference to version 11.0.0 or later:
+   ```xml
+   <PackageReference Include="Xunit.Microsoft.DependencyInjection" Version="11.0.0" />
+   ```
+4. Keep the `test` section in `global.json` that xUnit.net v4 requires (see the 10.1.0 entry); the .NET 11
+   SDK still refuses to run Microsoft Testing Platform projects through VSTest
+
 ## [10.2.0] - 2026-11-06
 
 Minor release, no breaking changes.
