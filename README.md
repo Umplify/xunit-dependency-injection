@@ -2,7 +2,7 @@
 ![Nuget](https://img.shields.io/nuget/v/Xunit.Microsoft.DependencyInjection)
 ![Nuget](https://img.shields.io/nuget/dt/Xunit.Microsoft.DependencyInjection)
 
-# Xunit Dependency Injection framework - .NET 10.0
+# Xunit Dependency Injection framework - .NET 11.0
 
 Xunit does not support any built-in dependency injection features, therefore developers have to come up with a solution to recruit their favourite dependency injection framework in their tests.
 
@@ -15,7 +15,7 @@ This library brings **Microsoft's dependency injection container** to Xunit by l
 ## ✨ Key Features
 
 - 🎯 **Multiple injection patterns** - Choose the approach that fits your team's style
-- 🔑 **Keyed services support** - Full .NET 10.0 keyed services integration
+- 🔑 **Keyed services support** - Full .NET 11.0 keyed services integration
 - ⚙️ **Configuration integration** - Support for `appsettings.json`, user secrets, and environment variables
 - 🧪 **Service lifetime management** - Transient, Scoped, and Singleton services work as expected
 - ♻️ **Async disposal support** - Container-managed `IAsyncDisposable` services are disposed asynchronously during fixture teardown
@@ -34,6 +34,11 @@ This library brings **Microsoft's dependency injection container** to Xunit by l
 
 Also please check the [migration guide](https://xunit.net/docs/getting-started/v3/migration) from xUnit for test authors.
 
+## Important: .NET versions
+
+* For **.NET 10.0** use Xunit.Microsoft.DependencyInjection versions **10.x**
+* For **.NET 11.0** use Xunit.Microsoft.DependencyInjection version **11.0.0 or later**
+
 ### Example on how to reference xunit.v3
 
 ```xml
@@ -41,7 +46,7 @@ Also please check the [migration guide](https://xunit.net/docs/getting-started/v
 ```
 
 > ⚠️ **xUnit.net v4 requires Microsoft Testing Platform.** `dotnet test` no longer runs v4 test
-> projects through VSTest on the .NET 10 SDK. See [Running your tests on xUnit.net v4](#running-your-tests-on-xunitnet-v4)
+> projects through VSTest on the .NET 10 SDK and later. See [Running your tests on xUnit.net v4](#running-your-tests-on-xunitnet-v4)
 > for the one-time `global.json` change you need.
 
 ## Getting started
@@ -49,7 +54,7 @@ Also please check the [migration guide](https://xunit.net/docs/getting-started/v
 ### Prerequisites
 
 Before you begin, ensure you have:
-- **.NET 10.0 SDK** installed on your development machine
+- **.NET 11.0 SDK** installed on your development machine
 - **Visual Studio 2022** or **Visual Studio Code** with C# extension
 - Basic understanding of dependency injection concepts
 - Familiarity with xUnit testing framework
@@ -228,7 +233,7 @@ public T? GetKeyedService<T>([DisallowNull] string key);
 public AsyncServiceScope GetAsyncScope();
 ```
 
-### Accessing the keyed wired up services in .NET 10.0
+### Accessing the keyed wired up services in .NET 11.0
 
 You can call the following method to access the keyed already-wired up services:
 
@@ -443,7 +448,7 @@ unchanged, but the runner and the parallelization model both moved, so read this
 
 ### Microsoft Testing Platform is now required
 
-xunit.v3 4.x runs on **Microsoft Testing Platform (MTP) v2**, and the .NET 10 SDK no longer bridges MTP
+xunit.v3 4.x runs on **Microsoft Testing Platform (MTP) v2**, and the .NET 10 SDK and later no longer bridge MTP
 test projects through VSTest. Without any change, `dotnet test` fails during the build:
 
 ```text
@@ -631,7 +636,7 @@ public IConfigurationBuilder ConfigurationBuilder { get; private set; }
 * **Traditional approach**: See examples using `TestBed<TFixture>` and `_fixture.GetService<T>(_testOutputHelper)`  
 * **Property injection**: See `PropertyInjectionTests.cs` for examples using `TestBedWithDI<TFixture>` with `[Inject]` attributes
 * **Factory pattern**: See `FactoryConstructorInjectionTests.cs` for experimental constructor injection scenarios
-* **Keyed services**: See `KeyedServicesTests.cs` for .NET 10.0 keyed service examples
+* **Keyed services**: See `KeyedServicesTests.cs` for .NET 11.0 keyed service examples
 * **Configuration**: See `UserSecretTests.cs` for configuration and user secrets integration
 * **Async disposal**: See `AsyncDisposableTests.cs` and `Fixtures/AsyncDisposableFixture.cs` for async teardown of `IAsyncDisposable` services
 * **Advanced patterns**: See `AdvancedDependencyInjectionTests.cs` for `IOptions<T>`, `Func<T>`, and `Action<T>` examples
@@ -660,7 +665,7 @@ If you encounter build errors, ensure all required Microsoft.Extensions packages
 - For **xUnit.v3 4.x** packages use Xunit.Microsoft.DependencyInjection version **10.1.0 or later**
 
 #### `dotnet test` fails with "Testing with VSTest target is no longer supported"
-xUnit.net v4 runs on Microsoft Testing Platform, which the .NET 10 SDK will not launch through VSTest.
+xUnit.net v4 runs on Microsoft Testing Platform, which the .NET 10 SDK and later will not launch through VSTest.
 Add the `test` section to `global.json` as described in
 [Running your tests on xUnit.net v4](#running-your-tests-on-xunitnet-v4).
 

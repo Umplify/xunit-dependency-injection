@@ -22,7 +22,7 @@ dotnet build src/Xunit.Microsoft.DependencyInjection.sln     # covers both proje
 dotnet test examples/Xunit.Microsoft.DependencyInjection.ExampleTests
 ```
 
-Targets `net10.0` only, on **xUnit v3** (`xunit.v3.extensibility.core`). xUnit v2 APIs do
+Targets `net11.0` only, on **xUnit v3** (`xunit.v3.extensibility.core`). xUnit v2 APIs do
 not apply here.
 
 ## Conventions that are easy to get wrong

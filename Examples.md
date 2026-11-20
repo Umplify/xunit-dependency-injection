@@ -312,7 +312,7 @@ public class RequiredInjectionTests(TestProjectFixture fixture) : TestBedWithDI<
 
 ## Keyed Services
 
-Keyed services let you register multiple implementations of the same interface under different keys. They were introduced in .NET 8 and are fully supported by this library on .NET 10.0:
+Keyed services let you register multiple implementations of the same interface under different keys. They were introduced in .NET 8 and are fully supported by this library on .NET 11.0:
 
 ### Traditional Approach with Keyed Services
 
